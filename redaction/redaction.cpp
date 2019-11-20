@@ -1,15 +1,21 @@
-#include <pugixml.hpp>
+﻿#include <pugixml.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <sstream> 
+//#include <stdio.h>
+#include <windows.h>
 using namespace std;
 
 vector<string> parse(string input, char c);
 
-//expected runtime format is
+//expected runtime format:
 //   ./redac input.xml output.txt --clearance SCI,TS,S,CNF
+//defaults (if not specified/not recognized):
+// redaction length = word length
+// visible = true
+// char = Full block char
 
 int main(int argc, char *argv[]){
 	if(argc == 1){
@@ -35,13 +41,16 @@ int main(int argc, char *argv[]){
 			clearance = true;
 		}
 	}
-	
 	std::vector<string> clearancesV = parse(clearances,',');
 	int wordL = 5;
 	int wordsL = 11;
 	int sentenceL = 90;
 	int sentencesL = 181;
 	int paragraphL = 363;
+	bool visible = true;
+	wchar_t replaceChar = '\u2588';
+	//char replaceChar = u8'\u2588';
+	//std::wcout << replaceChar;
 	
 	string line;
 	//if (inputXML.is_open()){
@@ -68,7 +77,15 @@ int main(int argc, char *argv[]){
 
 	//create a node for the text of the document
 	pugi::xml_node text = doc.child("document").child("text");
-
+	for (pugi::xml_attribute attr = text.first_attribute(); attr; attr = attr.next_attribute()) {
+		std::string name = attr.name();
+		std::string value = attr.value();
+		if (name == "visible") {
+			if (value == "False") {
+				
+			}
+		}
+	}
 	//parse through redactions
 	for (pugi::xml_node redact = text.child("redact"); redact; redact = redact.next_sibling("redact"))
 	{
@@ -112,7 +129,8 @@ int main(int argc, char *argv[]){
 		else if (shouldRedact) {
 			//create string of Full Block characters of length replaceLength
 			//must be converted to char * array because pugixml will not accept std::string
-			string redacted = string(replaceLength, 'X');
+			char replace = static_cast<char>(replaceChar);
+			string redacted = string(replaceLength, replace);
 			char *cstr = new char[replaceLength + 1];
 			redacted.copy(cstr, redacted.size() + 1);
 			cstr[redacted.size()] = '\0';
@@ -122,16 +140,13 @@ int main(int argc, char *argv[]){
 	//create a text file from our redacted pugixml object
 	for (pugi::xml_node_iterator it = text.begin(); it != text.end(); ++it)
 	{
-		//std::cout << "text:";
-		//std::cout << it->text().get();
+		std::cout << "text:";
+		std::cout << it->text().get();
 		output << it->text().get();
-		//std::cout << std::endl;
+		std::cout << std::endl;
 	}
 	output.close();
 	cout << "Document is finished being redacted" << endl;
-	//std::cout << "Document:\n";
-	//doc.save(std::cout);
-	//std::cout << std::endl;
 }
 
 //This method is used to parse a string input seperated by a given char c 
