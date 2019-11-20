@@ -3,19 +3,21 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <sstream> 
-//#include <stdio.h>
-#include <windows.h>
+#include <sstream>
 using namespace std;
 
 vector<string> parse(string input, char c);
+bool is_number(const std::string& s);
 
 //expected runtime format:
 //   ./redac input.xml output.txt --clearance SCI,TS,S,CNF
 //defaults (if not specified/not recognized):
 // redaction length = word length
 // visible = true
-// char = Full block char
+// char = X
+//
+// TO DO:
+// - compatibility with unicode so that Full Block Char can be used
 
 int main(int argc, char *argv[]){
 	if(argc == 1){
@@ -48,7 +50,7 @@ int main(int argc, char *argv[]){
 	int sentencesL = 181;
 	int paragraphL = 363;
 	bool visible = true;
-	wchar_t replaceChar = '\u2588';
+	char replaceChar = 'X';
 	//char replaceChar = u8'\u2588';
 	//std::wcout << replaceChar;
 	
@@ -81,9 +83,13 @@ int main(int argc, char *argv[]){
 		std::string name = attr.name();
 		std::string value = attr.value();
 		if (name == "visible") {
-			if (value == "False") {
-				
+			if (value == "false") {
+				visible = false;
+				break;
 			}
+		}
+		if (name == "char") {
+			replaceChar = value[0];
 		}
 	}
 	//parse through redactions
@@ -112,6 +118,11 @@ int main(int argc, char *argv[]){
 				else if (value == "Paragraph") {
 					replaceLength = paragraphL;
 				}
+				else if (is_number(value)) {
+					replaceLength = std::stoi(value);
+					std::cout << replaceLength;
+				}
+				//std::cout << value;
 			}
 			if (name == "level") {
 				//int i = std::find(std::begin(levels), std::end(levels), attr.name());
@@ -129,21 +140,26 @@ int main(int argc, char *argv[]){
 		else if (shouldRedact) {
 			//create string of Full Block characters of length replaceLength
 			//must be converted to char * array because pugixml will not accept std::string
-			char replace = static_cast<char>(replaceChar);
-			string redacted = string(replaceLength, replace);
-			char *cstr = new char[replaceLength + 1];
-			redacted.copy(cstr, redacted.size() + 1);
-			cstr[redacted.size()] = '\0';
-			redact.text().set(cstr);
+			
+			if (visible) {
+				string redacted = string(replaceLength, replaceChar);
+				char* cstr = new char[replaceLength + 1];
+				redacted.copy(cstr, redacted.size() + 1);
+				cstr[redacted.size()] = '\0';
+				redact.text().set(cstr);
+			}
+			else {
+				redact.text().set("");
+			}
 		}
 	}
 	//create a text file from our redacted pugixml object
 	for (pugi::xml_node_iterator it = text.begin(); it != text.end(); ++it)
 	{
-		std::cout << "text:";
-		std::cout << it->text().get();
+		//std::cout << "text:";
+		//std::cout << it->text().get();
 		output << it->text().get();
-		std::cout << std::endl;
+		//std::cout << std::endl;
 	}
 	output.close();
 	cout << "Document is finished being redacted" << endl;
@@ -162,4 +178,11 @@ vector<string> parse(string input, char c) {
 		parsedVector.push_back(substring);
 	}
 	return parsedVector;
+}
+
+bool is_number(const std::string& s){
+	std::string::const_iterator it = s.begin();
+	while (it != s.end() && std::isdigit(*it))
+		++it;
+	return !s.empty() && it == s.end();
 }
