@@ -1,8 +1,4 @@
-// redaction.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
 #include <pugixml.hpp>
-//#include "pugixml.cpp"
-// reading a text file
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -11,8 +7,10 @@
 using namespace std;
 
 vector<string> parse(string input, char c);
+
 //expected runtime format is
 //   ./redac input.xml output.txt --clearance SCI,TS,S,CNF
+
 int main(int argc, char *argv[]){
 	if(argc == 1){
 		cout << "Error: must include input xml file" << endl;
@@ -74,7 +72,8 @@ int main(int argc, char *argv[]){
 	//parse through redactions
 	for (pugi::xml_node redact = text.child("redact"); redact; redact = redact.next_sibling("redact"))
 	{
-		int replaceLength = 0;
+		//replace length defaults to word length if not specified
+		int replaceLength = wordL;
 		bool shouldRedact = true;
 		for (pugi::xml_attribute attr = redact.first_attribute(); attr; attr = attr.next_attribute()){
 			std::string name = attr.name();
@@ -135,25 +134,17 @@ int main(int argc, char *argv[]){
 	//std::cout << std::endl;
 }
 
+//This method is used to parse a string input seperated by a given char c 
+//and return it as a vector of strings
 vector<string> parse(string input, char c) {
 	stringstream stream(input);
 	vector<string> parsedVector;
 	//cout << "this is input" << input << endl;
 	while (stream.good()) {
 		string substring;
-		getline(stream, substring, ',');
+		getline(stream, substring, c);
 		//cout << substring << endl;
 		parsedVector.push_back(substring);
 	}
 	return parsedVector;
 }
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
