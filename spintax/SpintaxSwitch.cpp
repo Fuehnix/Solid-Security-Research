@@ -11,6 +11,9 @@ SpintaxSwitch::SpintaxSwitch(string in) {
 	string modInput;
 	bool openBraces = false;
 	string substring = "";
+	int tempMin = INT_MIN;
+	string tempNumberString = "";
+	bool containsDash = false;
 	//if nested is true, we know that this level must be a string switch with nesting, not integer
 	for(string::const_iterator i = in.begin(); i <= in.end(); ++i) {
 		if (!openBraces && *i == '|') {
@@ -27,6 +30,7 @@ SpintaxSwitch::SpintaxSwitch(string in) {
 		}
 		if (*i == '{') {
 			isNested = true;
+			switch_type = strType;
 			openBraces = true;
 			substring.push_back(*i);
 			continue;
@@ -36,20 +40,52 @@ SpintaxSwitch::SpintaxSwitch(string in) {
 			substring.push_back(*i);
 			continue;
 		}
-		if (switch_type == noType && !isdigit(*i) && *i != '-') {
-			switch_type = strType;
-			substring.push_back(*i);
-			continue;
-		}
+		//Possible examples
+		//300-1400-         X
+		//300-1400a         X
+		//300-A unit cost   X
+		//300--1400         X
+		//All of these are not intType
+		if (switch_type == noType)
+			if(isdigit(*i)) {
+				substring.push_back(*i);
+				tempNumberString.push_back(*i);
+			}
+			else{
+				//if we have a non number character, or, if we have seen a dash and then we see another dash, we know that this is not a intType
+				if (*i != '-' || (containsDash && *i == '-')) {
+					switch_type = strType;
+					//tempMin != INT_MIN signals that we have set the value of a number
+					//now that it is strType, we must add this text back in.
+					if (tempMin != INT_MIN) {
+						substring.append(tempNumberString);
+					}
+					substring.push_back(*i);
+					continue;
+				}
+				else if (!containsDash && *i == '-'){
+					containsDash = true;
+					tempMin = stoi(substring);
+					tempNumberString.push_back('-');
+					substring = "";
+					//skip over '-' by not doing a pushback
+				}
+			}
 		if (switch_type == strType) {
 			substring.push_back(*i);
 		}
+		if (i == in.end()) {
+			substring.push_back(*i);
+			if (switch_type == noType) {
+				switch_type == intType;
+				minVal = tempMin;
+				maxVal = stoi(substring);
+			}
+			if (switch_type == strType) {
+				strings.push_back(substring);
+			}
+		}
 	}
-	if (switch_type == noType) {
-		
-	}
-	stringstream stream(in);
-	
 }
 
 int SpintaxSwitch::getSwitchType(){
@@ -77,13 +113,13 @@ vector<string> SpintaxSwitch::getStringOptions() {
 	return strings;
 }
 
-void SpintaxSwitch::setMinVal(int value) {
+//void SpintaxSwitch::setMinVal(int value) {
 
-}
+//}
 
-void SpintaxSwitch::setMaxVal(int value) {
+//void SpintaxSwitch::setMaxVal(int value) {
 
-}
+//}
 
 //returns the input string with the int value in the place of the spintax
 int SpintaxSwitch::spinIntValue() {
@@ -97,4 +133,5 @@ string SpintaxSwitch::spinStringValue() {
 
 bool SpintaxSwitch::getNested() {
 	return isNested;
+}
 }

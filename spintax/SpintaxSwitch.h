@@ -9,9 +9,7 @@ class SpintaxSwitch
 {
 private:
 	//TO DO:
-	// Nesting...
-	// Global ...
-	// escape characters
+	// Global switches ...
 	const int noType = -1;
 	const int intType = 0;
 	const int strType = 1;
@@ -27,8 +25,8 @@ public:
 	int getMinVal();
 	int getMaxVal();
 	vector<string> getStringOptions();
-	void setMinVal(int value);
-	void setMaxVal(int value);
+	//void setMinVal(int value);
+	//void setMaxVal(int value);
 	int spinIntValue();
 	string spinStringValue();
 	bool getNested();
