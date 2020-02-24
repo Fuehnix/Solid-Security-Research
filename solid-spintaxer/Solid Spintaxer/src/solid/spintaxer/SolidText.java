@@ -25,8 +25,16 @@ public class SolidText extends SolidSwitch {
     
     public String spin(int tag){
         String out = "";
+        int permutations = 0;
         for(SolidSwitch sswitch : body) {
-            out += sswitch.spin(tag);
+            int currPermutations = sswitch.permutations();
+            if(currPermutations == 1){
+                out += sswitch.spin(0);
+            }
+            int childTag = tag % currPermutations;
+            out += sswitch.spin(childTag);
+            tag = (tag-childTag)/currPermutations;
+            
         }
         return out;
     }

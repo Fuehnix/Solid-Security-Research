@@ -55,7 +55,7 @@ public class SolidSpintaxer {
 //        System.out.println(text.spin());
 //        System.out.println("test2");
         SolidIntSwitch test = new SolidIntSwitch(1000,9000);
-        System.out.println(test.spin(8000));
+//        System.out.println(test.spin(8000));
         SolidSwitch s1 = new SolidSwitch();
         SolidStrSwitch x = new SolidStrSwitch("x");
         SolidStrSwitch y = new SolidStrSwitch("y");
@@ -79,8 +79,17 @@ public class SolidSpintaxer {
         SolidSwitch parent = new SolidSwitch();
         parent.addChild(s1);
         parent.addChild(s2);
-        System.out.println(parent.toString());
-        System.out.println(parent.spin(3));
+//        System.out.println(parent.toString());
+//        System.out.println(parent.spin(3));
+        //TEST SolidText
+        SolidIntSwitch int010 = new SolidIntSwitch(0,10);
+        SolidIntSwitch int06 = new SolidIntSwitch(0,6);
+        SolidIntSwitch int0102 = new SolidIntSwitch(0,10);
+        SolidText test2 = new SolidText();
+        test2.addSwitch(int010);
+        test2.addSwitch(int06);
+        test2.addSwitch(int0102);
+        System.out.println(test2.spin(100));
         SolidText text = parse("Introducing project "
                 + "@{hello|{foo|bar}|{100-200}}. Project "
                 + "@{hello|{foo|bar}|{100-200}} is a new security initiative "
