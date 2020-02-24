@@ -5,12 +5,15 @@
  */
 package solid.spintaxer;
 
+import java.util.HashMap;
+
 /**
  *
  * @author jacob
  */
 public class SolidGlobalSwitch extends SolidSwitch {
     private String hash, result;
+    public static HashMap<String,SolidGlobalSwitch> switches;
     private SolidGlobalSwitch master;
     
     public SolidGlobalSwitch() {
@@ -28,5 +31,9 @@ public class SolidGlobalSwitch extends SolidSwitch {
         } else {
             return master.result;
         }
+    }
+    
+    public String toString() {
+        return "@" + super.toString();
     }
 }
