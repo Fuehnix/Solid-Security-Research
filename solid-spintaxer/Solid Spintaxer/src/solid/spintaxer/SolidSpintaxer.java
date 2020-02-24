@@ -5,6 +5,9 @@
  */
 package solid.spintaxer;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 /**
@@ -18,7 +21,7 @@ public class SolidSpintaxer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args){
         boolean nFlag = false;
         boolean rFlag = false;
         boolean pFlag = false;
@@ -88,7 +91,15 @@ public class SolidSpintaxer {
             System.out.println("HELP TEXT PLACEHOLDER");
             return;
         }
-
+        SolidText text;
+        try{
+            String input = readFileAsString(fileInput);
+            text = parse(input);
+            System.out.println(text);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+            
         if(nFlag){
             
         }
@@ -166,16 +177,16 @@ public class SolidSpintaxer {
         test2.addSwitch(int06);
         test2.addSwitch(int0102);
         System.out.println(test2.spin(100));
-        SolidText text = parse("Introducing project "
+        SolidText ex1 = parse("Introducing project "
                 + "@{hello|{foo|bar}|{100-200}}. Project "
                 + "@{hello|{foo|bar}|{100-200}} is a new security initiative "
                 + "from Solid Security. Our goal with project "
                 + "@{hello|{foo|bar}|{100-200}} is to...");
         // SolidText text = parse("Hello");
-        System.out.println(text);
-        System.out.println(text.spin(5));
+        System.out.println(ex1);
+        System.out.println(ex1.spin(5));
 //        System.out.println(text.spin(1));
-        System.out.println("There are " + text.permutations() + " possible "
+        System.out.println("There are " + ex1.permutations() + " possible "
                 + "permutations");
 
     }
