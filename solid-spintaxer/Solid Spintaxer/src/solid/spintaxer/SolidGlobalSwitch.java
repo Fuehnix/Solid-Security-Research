@@ -12,8 +12,8 @@ import java.util.HashMap;
  * @author jacob
  */
 public class SolidGlobalSwitch extends SolidSwitch {
-    private String hash, result;
-    public static HashMap<String,SolidGlobalSwitch> switches;
+    private String result;
+    public static HashMap<String, SolidGlobalSwitch> switches = new HashMap<String,SolidGlobalSwitch>();
     private SolidGlobalSwitch master;
     
     public SolidGlobalSwitch() {
@@ -35,5 +35,13 @@ public class SolidGlobalSwitch extends SolidSwitch {
     
     public String toString() {
         return "@" + super.toString();
+    }
+    
+    public int permutations(){
+        if(master==null){
+            return super.permutations();
+        } else {
+            return 1;
+        }
     }
 }

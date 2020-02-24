@@ -46,5 +46,20 @@ public class SolidSwitch {
         out += "}";
         return out;
     }
+    
+    public ArrayList<SolidSwitch> getChildren(){
+        return children;
+    }
+    
+    public int permutations(){
+        int permutations = 0;
+        for (SolidSwitch s : children) {
+            permutations += s.permutations();
+        }
+        return permutations;
+    }
+//    void setMaster(SolidGlobalSwitch get) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
         
 }

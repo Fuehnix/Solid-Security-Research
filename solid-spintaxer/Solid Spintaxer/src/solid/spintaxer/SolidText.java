@@ -40,4 +40,12 @@ public class SolidText extends SolidSwitch {
         return out;
     }
     
+    public int permutations(){
+        int permutations = 1;
+        for (SolidSwitch s : body) {
+            permutations *= s.permutations();
+        }
+        return permutations;
+    }
+    
 }

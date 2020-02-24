@@ -31,4 +31,8 @@ public class SolidStrSwitch extends SolidSwitch {
         }
         return out;
     }
+    
+    public int permutations(){
+        return 1;
+    }
 }

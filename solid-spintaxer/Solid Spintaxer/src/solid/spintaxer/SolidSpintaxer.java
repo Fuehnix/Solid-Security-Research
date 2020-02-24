@@ -62,6 +62,8 @@ public class SolidSpintaxer {
         // SolidText text = parse("Hello");
         System.out.println(text);
         System.out.println(text.spin());
+        System.out.println("There are " + text.permutations() + " possible "
+                + "permutations");
 
     }
     
@@ -78,13 +80,16 @@ public class SolidSpintaxer {
         }
         
         SolidText text = new SolidText();
-        SolidSwitch currSwitch = new SolidSwitch();
+        SolidSwitch currSwitch;
+        currSwitch = new SolidSwitch();
         String substring = "";
         int openBracesCount = 0;
-        
         for(int i = 0; i < input.length(); i++) {
             char curr = input.charAt(i);
-            
+            if(curr == '@'){
+                currSwitch = new SolidGlobalSwitch();
+                continue;
+            }
             if(curr == '{') {
                 openBracesCount += 1;
                 if(openBracesCount == 1) {
@@ -108,6 +113,17 @@ public class SolidSpintaxer {
                     SolidSwitch option = parse(substring);
                     currSwitch.addChild(option);
                     text.addSwitch(currSwitch);
+                    
+                    if(currSwitch instanceof SolidGlobalSwitch) {
+                        SolidGlobalSwitch globalSwitch = (SolidGlobalSwitch) currSwitch;
+                        String contents = currSwitch.toString();
+                        if(SolidGlobalSwitch.switches.containsKey(contents)) {
+                            globalSwitch.setMaster((SolidGlobalSwitch) SolidGlobalSwitch.switches.get(contents));
+                        } else {
+                            SolidGlobalSwitch.switches.put(contents, globalSwitch);
+                        }
+                    }
+                    
                     currSwitch = new SolidSwitch();
                     substring = "";
                     //System.out.println(substring);
