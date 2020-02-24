@@ -54,10 +54,12 @@ public class SolidSpintaxer {
 //        text.addSwitch(is);
 //        System.out.println(text.spin());
 //        System.out.println("test2");
-        SolidText text = parse("Introducing project {hello|{foo|bar}}. Project "
-                + "{hello|{foo|bar}} is a new security initiative from Solid "
-                + "Security. Our goal with project {hello|{foo|bar}} is to...");
-       // SolidText text = parse("Hello");
+        SolidText text = parse("Introducing project "
+                + "@{hello|{foo|bar}|{100-200}}. Project "
+                + "@{hello|{foo|bar}|{100-200}} is a new security initiative "
+                + "from Solid Security. Our goal with project "
+                + "@{hello|{foo|bar}|{100-200}} is to...");
+        // SolidText text = parse("Hello");
         System.out.println(text);
         System.out.println(text.spin());
 
@@ -65,6 +67,15 @@ public class SolidSpintaxer {
     
     public static SolidText parse(String input){
 //        System.out.print("parse(" + input + ") = ");
+        if(input.matches("\\{[0-9]+-[0-9]+\\}")){
+            SolidText text = new SolidText();
+            int pos = input.indexOf("-");
+            int min = Integer.parseInt(input.substring(1, pos));
+            int max = Integer.parseInt(input.substring(pos + 1, input.length()-1));
+            SolidIntSwitch temp = new SolidIntSwitch(min,max);
+            text.addSwitch(temp);
+            return text;
+        }
         
         SolidText text = new SolidText();
         SolidSwitch currSwitch = new SolidSwitch();
@@ -108,42 +119,6 @@ public class SolidSpintaxer {
         
         SolidStrSwitch temp = new SolidStrSwitch(substring);
         text.addSwitch(temp);
-        
-     
-        
-//        for(int i = 0; i < input.length(); i++) {
-//            char curr = input.charAt(i);
-//            
-//            if(curr == '{') {
-//                if(openBracesCount == 0) {
-//                    SolidStrSwitch temp = new SolidStrSwitch(substring);
-//                    text.addSwitch(temp);
-//                    //System.out.println(substring);
-//                    substring = "";
-//                    continue;
-//                }
-//                openBracesCount += 1;
-//            } else if (curr == '|') {
-//                if(openBracesCount == 1){
-//                    SolidStrSwitch option = new SolidStrSwitch(substring);
-//                    currSwitch.addChild(option);
-//                    //System.out.println(substring);
-//                    continue;
-//                }
-//            } else if (curr == '}'){
-//                if(openBracesCount == 1){
-//                    SolidStrSwitch option = new SolidStrSwitch(substring);
-//                    currSwitch.addChild(option);
-//                    text.addSwitch(currSwitch);
-//                    currSwitch = new SolidSwitch();
-//                    //System.out.println(substring);
-//                    continue;
-//                }
-//                openBracesCount -= 1;
-//            }
-//            substring += input.charAt(i);
-//        }
-//        System.out.print(text + "\n");
         return text;
     }
     
