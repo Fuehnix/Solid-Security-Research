@@ -19,12 +19,15 @@ public class SolidIntSwitch extends SolidSwitch {
         this.max = max;
     }
     
-    public String spin(){
-        Random rand = new Random();
+    public String spin(int tag){
+        //Random rand = new Random();
         //absolute int range
         int range = max - min + 1;
-        int randInt = rand.nextInt(range);
-        int num = randInt+min;
+        if(tag + min > max){
+            System.out.println("SolidIntSwitch tag not in range");
+//            throw new Exception(); 
+        }
+        int num = tag + min;
         String out = Integer.toString(num);
         return out;
     }

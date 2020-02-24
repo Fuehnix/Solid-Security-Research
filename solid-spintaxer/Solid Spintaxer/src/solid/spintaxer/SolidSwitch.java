@@ -24,13 +24,19 @@ public class SolidSwitch {
         children.add(child);
     }
     
-    public String spin(){
+    public String spin(int tag){
         int length = children.size();
-        Random rand = new Random();
         //absolute int range
-        int randInt = rand.nextInt(length);
-        SolidSwitch selected = children.get(randInt);
-        return selected.spin();
+        for(int i = 0; i < children.size(); i++){
+            int curPermutations = children.get(i).permutations();
+            if(tag < curPermutations){
+                return children.get(i).spin(tag);
+            } else {
+                tag -= curPermutations;
+            }
+        }
+        System.out.println("Error: tag not reached");
+        return "ERROR";
     }
     
     public String toString() {

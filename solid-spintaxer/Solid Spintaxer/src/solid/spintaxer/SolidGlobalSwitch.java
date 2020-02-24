@@ -24,9 +24,9 @@ public class SolidGlobalSwitch extends SolidSwitch {
         this.master = master;
     }
     
-    public String spin() {
+    public String spin(int tag) {
         if(master==null) {
-            this.result = super.spin();
+            this.result = super.spin(tag);
             return result;
         } else {
             return master.result;

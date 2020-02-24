@@ -16,7 +16,10 @@ public class SolidStrSwitch extends SolidSwitch {
         this.body = body;
     }
     
-    public String spin(){
+    public String spin(int tag){
+        if(tag != 0){
+            System.out.print("SolidStrSwitch tag is not 0");
+        }
         return body;
     }
     

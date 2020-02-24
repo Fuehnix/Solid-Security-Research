@@ -23,10 +23,10 @@ public class SolidText extends SolidSwitch {
         body.add(sswitch);
     }
     
-    public String spin(){
+    public String spin(int tag){
         String out = "";
         for(SolidSwitch sswitch : body) {
-            out += sswitch.spin();
+            out += sswitch.spin(tag);
         }
         return out;
     }

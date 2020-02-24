@@ -54,6 +54,33 @@ public class SolidSpintaxer {
 //        text.addSwitch(is);
 //        System.out.println(text.spin());
 //        System.out.println("test2");
+        SolidIntSwitch test = new SolidIntSwitch(1000,9000);
+        System.out.println(test.spin(8000));
+        SolidSwitch s1 = new SolidSwitch();
+        SolidStrSwitch x = new SolidStrSwitch("x");
+        SolidStrSwitch y = new SolidStrSwitch("y");
+        SolidStrSwitch z = new SolidStrSwitch("z");
+        s1.addChild(x);
+        s1.addChild(y);
+        s1.addChild(z);
+        SolidSwitch s2 = new SolidSwitch();
+        SolidIntSwitch int5560 = new SolidIntSwitch(55,65);
+        s2.addChild(int5560);
+        SolidStrSwitch a = new SolidStrSwitch("a");
+        SolidStrSwitch b = new SolidStrSwitch("b");
+        SolidStrSwitch c = new SolidStrSwitch("c");
+        SolidSwitch s3 = new SolidSwitch();
+        s3.addChild(a);
+        s3.addChild(b);
+        s3.addChild(c);
+        s2.addChild(s3);
+        SolidIntSwitch int1020 = new SolidIntSwitch(10,20);
+        s2.addChild(int1020);
+        SolidSwitch parent = new SolidSwitch();
+        parent.addChild(s1);
+        parent.addChild(s2);
+        System.out.println(parent.toString());
+        System.out.println(parent.spin(3));
         SolidText text = parse("Introducing project "
                 + "@{hello|{foo|bar}|{100-200}}. Project "
                 + "@{hello|{foo|bar}|{100-200}} is a new security initiative "
@@ -61,7 +88,7 @@ public class SolidSpintaxer {
                 + "@{hello|{foo|bar}|{100-200}} is to...");
         // SolidText text = parse("Hello");
         System.out.println(text);
-        System.out.println(text.spin());
+//        System.out.println(text.spin(1));
         System.out.println("There are " + text.permutations() + " possible "
                 + "permutations");
 
