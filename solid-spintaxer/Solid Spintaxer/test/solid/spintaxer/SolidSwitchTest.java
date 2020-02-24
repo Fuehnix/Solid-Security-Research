@@ -47,7 +47,7 @@ public class SolidSwitchTest {
         instance.addChild(option2);
         ArrayList<String> results = new ArrayList<String>();
         for(int i = 0; i < repetitions; i++){
-            results.add(instance.spin());
+            results.add(instance.spin(1));
         }
         assert(results.contains(option1S));
         assert(results.contains(option2S));
