@@ -30,6 +30,7 @@ public class SolidText extends SolidSwitch {
             int currPermutations = sswitch.permutations();
             if(currPermutations == 1){
                 out += sswitch.spin(0);
+                continue;
             }
             int childTag = tag % currPermutations;
             out += sswitch.spin(childTag);

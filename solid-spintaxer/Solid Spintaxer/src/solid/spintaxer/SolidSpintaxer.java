@@ -21,9 +21,8 @@ public class SolidSpintaxer {
 //        System.out.println("This program is a proof of concept");
 //        System.out.println("Please type a text using the Solid "
 //                + "Spintax format and press enter when done");
-//	
-//	cin >> input;
-//	System.out.println("You entered " + input);
+//        
+//	System.out.println("You entered ");
 //	System.out.println("Processing...");
 //        String input = "Project @{hello | {foo|bar} | {100-200}} is ..."
 //                + "Projecct @@{hello | {foo|bar} | {100-200}} is ...";
@@ -97,6 +96,7 @@ public class SolidSpintaxer {
                 + "@{hello|{foo|bar}|{100-200}} is to...");
         // SolidText text = parse("Hello");
         System.out.println(text);
+        System.out.println(text.spin(5));
 //        System.out.println(text.spin(1));
         System.out.println("There are " + text.permutations() + " possible "
                 + "permutations");
