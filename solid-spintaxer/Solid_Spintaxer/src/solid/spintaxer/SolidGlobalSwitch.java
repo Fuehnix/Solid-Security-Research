@@ -44,4 +44,5 @@ public class SolidGlobalSwitch extends SolidSwitch {
             return 1;
         }
     }
+    
 }

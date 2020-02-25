@@ -13,8 +13,7 @@ import java.util.ArrayList;
  */
 public class SolidText extends SolidSwitch {
     private ArrayList<SolidSwitch> body;
-    
-    
+
     public SolidText(){
         body = new ArrayList<SolidSwitch>();
     }
@@ -55,6 +54,14 @@ public class SolidText extends SolidSwitch {
             permutations *= s.permutations();
         }
         return permutations;
+    }
+    
+    public int switches(){
+        int switches = 0;
+        for(SolidSwitch s : body){
+            switches += s.switches();
+        }
+        return switches;
     }
     
 }

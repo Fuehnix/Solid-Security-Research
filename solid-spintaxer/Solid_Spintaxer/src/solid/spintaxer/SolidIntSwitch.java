@@ -43,4 +43,8 @@ public class SolidIntSwitch extends SolidSwitch {
         int permutations = max - min + 1;
         return permutations;
     }
+    
+    public int switches(){
+        return 1;
+    }
 }

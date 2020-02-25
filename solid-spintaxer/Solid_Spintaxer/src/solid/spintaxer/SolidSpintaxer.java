@@ -5,9 +5,14 @@
  */
 package solid.spintaxer;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -15,6 +20,10 @@ import java.util.Scanner;
  * @author jacob
  */
 public class SolidSpintaxer {
+    private static final int fileWarningNum = 10;
+    private static final int fileRejectNum = 100000;
+
+    
     //To do :
     // implement buffered reader so that parse and file are both one character
     // a time
@@ -31,16 +40,43 @@ public class SolidSpintaxer {
         boolean fFlag = false;
         boolean oFlag = false;
         boolean aFlag = false;
+        boolean uFlag = false;
         int numOfFiles = 1;
-        int permGiven;
-        String fileInput = args[0];
-        String fileOut;
+        int permGiven = 0;
+        int fileStartNum = 0;
+        int version = 1;
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        String fileInput;
+        System.out.println("       /MMM/ yMMm .MMMs                                                         \n"
+        + "       /MMMmdNMMMddMMMs                                                         \n"
+        + "+ ++++++ssssdMMMMMMMMMo    -\\\\\\\\\\\\\\\\\\   `:///////-  `/-         -/` -/////////. \n"
+        + " `/`++++smNNNNNNMMMMy-    oMy          /NhoooooooNh .My         sM: sMsoooooosMs\n"
+        + "           syyyyMMM.      +My++++++oo. hM.       yM .My         sM: sM-       NM\n"
+        + "    `/.++++sssssMMM`               sMy hM.       yM .My         sM: sM-       NM\n"
+        + "     `/.+++mNNNNMMM`      +My++++++yMs /NhoooooosNh .Md+++++++: sM: sMsooooooyMo\n"
+        + "         :syyyyhMMMh/      -////////-   `:///////.  `/////////- -/` -////////:` \n"
+        + "  `/`+++ssssmMMMMMMMMN`                                                         \n"
+        + " :./++++NMMMMMMMMMMMMM.                                                         \n"
+        + "================================================================================\n\n");
+        System.out.println("Solid Spinner v. " + version + " (Solid Spintax Standard v. " + version + ")");
+        try{
+            fileInput = args[0];
+        } catch(Exception e){
+            fileInput = "spintax.txt";
+        }
+        String fileOut = "";
         for(int i = 0; i < args.length; i++){
             switch(args[i]) {
                 case "-n":
                 case "--count":
                     nFlag = true;
-                    numOfFiles = Integer.parseInt(args[i+1]);
+                    try{
+                        numOfFiles = Integer.parseInt(args[i+1]);
+                    } catch(Exception e){
+                        e.printStackTrace();
+                        System.out.println("Error: invalid arg format. Please"
+                                + " run with -help or -h to see proper format");
+                    }
                     break;
                 case "-r":
                 case "-rand":
@@ -51,12 +87,19 @@ public class SolidSpintaxer {
                 case "--perm":
                     //basically flag, this refers to what is being passed as tag
                     pFlag = true;
-                    permGiven = Integer.parseInt(args[i+1]);
+                    try{
+                        permGiven = Integer.parseInt(args[i+1]);
+                        fileStartNum = permGiven;
+                    } catch(Exception e){
+                        e.printStackTrace();
+                        System.out.println("Error: invalid arg format. Please"
+                                + " run with -help or -h to see proper format");
+                    }
                     break;
                 case "-s":
                 case "--sequential":
-                    //sequential file names and tags.
-                    //if combined with tag, include in file name
+                    //sequential file names and perms.
+                    //if combined with perm, include in file name
                     sFlag = true;
                     break;
                 case "-i":
@@ -77,6 +120,13 @@ public class SolidSpintaxer {
                     //allows you to change the filename default
                     oFlag = true;
                     fileOut = args[i+1];
+                    try{
+                        fileOut = args[i+1];
+                    } catch(Exception e){
+                        e.printStackTrace();
+                        System.out.println("Error: invalid arg format. Please"
+                                + " run with -help or -h to see proper format");
+                    }
                 case "-a":
                 case "--a":
                     //generates all possible permutations as files
@@ -85,98 +135,78 @@ public class SolidSpintaxer {
                     aFlag = true;
                 case "-u":
                 case "--unique":
+                    uFlag = true;
             }
         }
         if(hFlag){
-            System.out.println("HELP TEXT PLACEHOLDER");
+            System.out.println("-n,   -count <#>          specifies a number of files to be generated\n" +
+        "-h,   -help               print this help\n" +
+        "-r,   -rand               randomizes the permutation generation, enabled by default, but conflicts with sequential"+
+        "-p,   -perm <#>           specifies the permutation to be generated"+
+        "-s,   -sequential         generates permutations sequentially by their perm #"+
+        "-i,   -info               prints the number of permutations possible"+
+        "-f,   -logfile            creates a logfile of system outputs"+
+        "-o,   -out                specifies the outputs file, by default, it is the same as input");
             return;
         }
+        if(sFlag && rFlag){
+            System.out.println("ERROR: permutations cannot "
+                    + "be both random and sequential");
+            return;
+        }
+        
         SolidText text;
         try{
+            System.out.println("Loading input file (" + fileInput + ")...");
             String input = readFileAsString(fileInput);
+            System.out.println("Loaded " + input.length() + " characters");
             text = parse(input);
+            int permutations = text.permutations();
+            System.out.println("Loaded " + text.switches() + " switches constituting "
+                    + permutations + " permutations");
             System.out.println(text);
+            
+            if(aFlag && permutations > fileRejectNum){
+                System.out.println("Warning, this will print " + fileWarningNum + 
+                        " cases");
+            }
+            
+            if(aFlag && permutations > fileRejectNum){
+                System.out.println("Warning, this will print " + fileRejectNum + 
+                        " cases");
+            }
+            
+            if(fileOut == "") {
+                fileOut = fileInput;
+            }
+            
+            if(uFlag){
+                list = getUniquePerms(permutations,numOfFiles);
+            }
+            
+            System.out.println("Generating " + numOfFiles + "output files...");
+            System.out.println("");
+            Random rand = new Random();
+            for(int i = 0; i < numOfFiles; i++) {
+                FileWriter fw = new FileWriter(new File(Integer.toString(i) 
+                        + fileInput));
+                if(rFlag || !sFlag){
+                    permGiven = rand.nextInt(permutations);
+                }
+                if(uFlag){
+                    permGiven = (list.get(i));
+                }
+                fw.write(text.spin(permGiven).toString());
+                permGiven++;
+            }
         }catch(Exception e){
             e.printStackTrace();
         }
-            
-        if(nFlag){
-            
-        }
+
             
             
         // TODO code application logic here
-//        System.out.println("This program is a proof of concept");
-//        System.out.println("Please type a text using the Solid "
-//                + "Spintax format and press enter when done");
-//        
-//	System.out.println("You entered ");
-//	System.out.println("Processing...");
-//        String input = "Project @{hello | {foo|bar} | {100-200}} is ..."
-//                + "Projecct @@{hello | {foo|bar} | {100-200}} is ...";
-//        SolidStrSwitch foo = new SolidStrSwitch("foo");
-//        SolidStrSwitch bar = new SolidStrSwitch("bar");
-//        SolidSwitch foobar = new SolidSwitch();
-//        foobar.addChild(foo);
-//        foobar.addChild(bar);
-//        SolidStrSwitch hello = new SolidStrSwitch("hello");
-//        SolidIntSwitch intSwitch = new SolidIntSwitch(100,200);
-//        SolidGlobalSwitch mainSwitch = new SolidGlobalSwitch();
-//        mainSwitch.addChild(hello);
-//        mainSwitch.addChild(foobar);
-//        mainSwitch.addChild(intSwitch);
-//        SolidGlobalSwitch switch2 = new SolidGlobalSwitch();
-//        switch2.addChild(hello);
-//        switch2.addChild(foobar);
-//        switch2.addChild(intSwitch);
-//        switch2.setMaster(mainSwitch);
-//        SolidStrSwitch project = new SolidStrSwitch("Project ");
-//        SolidStrSwitch is = new SolidStrSwitch(" is ... \n");
-//        SolidText text = new SolidText();
-//        text.addSwitch(project);
-//        text.addSwitch(mainSwitch);
-//        text.addSwitch(is);
-//        text.addSwitch(project);
-//        text.addSwitch(switch2);
-//        text.addSwitch(is);
-//        System.out.println(text.spin());
-//        System.out.println("test2");
-        SolidIntSwitch test = new SolidIntSwitch(1000,9000);
-//        System.out.println(test.spin(8000));
-        SolidSwitch s1 = new SolidSwitch();
-        SolidStrSwitch x = new SolidStrSwitch("x");
-        SolidStrSwitch y = new SolidStrSwitch("y");
-        SolidStrSwitch z = new SolidStrSwitch("z");
-        s1.addChild(x);
-        s1.addChild(y);
-        s1.addChild(z);
-        SolidSwitch s2 = new SolidSwitch();
-        SolidIntSwitch int5560 = new SolidIntSwitch(55,65);
-        s2.addChild(int5560);
-        SolidStrSwitch a = new SolidStrSwitch("a");
-        SolidStrSwitch b = new SolidStrSwitch("b");
-        SolidStrSwitch c = new SolidStrSwitch("c");
-        SolidSwitch s3 = new SolidSwitch();
-        s3.addChild(a);
-        s3.addChild(b);
-        s3.addChild(c);
-        s2.addChild(s3);
-        SolidIntSwitch int1020 = new SolidIntSwitch(10,20);
-        s2.addChild(int1020);
-        SolidSwitch parent = new SolidSwitch();
-        parent.addChild(s1);
-        parent.addChild(s2);
-//        System.out.println(parent.toString());
-//        System.out.println(parent.spin(3));
-        //TEST SolidText
-        SolidIntSwitch int010 = new SolidIntSwitch(0,10);
-        SolidIntSwitch int06 = new SolidIntSwitch(0,6);
-        SolidIntSwitch int0102 = new SolidIntSwitch(0,10);
-        SolidText test2 = new SolidText();
-        test2.addSwitch(int010);
-        test2.addSwitch(int06);
-        test2.addSwitch(int0102);
-        System.out.println(test2.spin(100));
+
         SolidText ex1 = parse("Introducing project "
                 + "@{hello|{foo|bar}|{100-200}}. Project "
                 + "@{hello|{foo|bar}|{100-200}} is a new security initiative "
@@ -266,7 +296,19 @@ public class SolidSpintaxer {
         String data = ""; 
         data = new String(Files.readAllBytes(Paths.get(fileName))); 
         return data; 
-  } 
+    }
     
+    public static ArrayList<Integer> getUniquePerms(int permutations, int numOfPerms){
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        ArrayList<Integer> out = new ArrayList<Integer>();
+        for (int i=1; i<11; i++) {
+            list.add(i);
+        }
+        Collections.shuffle(list);
+        for (int i=0; i<numOfPerms; i++) {
+            out.add(list.get(i));
+        }
+        return out;
+    }
     
 }

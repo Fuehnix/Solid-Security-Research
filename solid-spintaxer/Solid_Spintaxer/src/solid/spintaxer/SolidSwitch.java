@@ -14,6 +14,7 @@ import java.util.Random;
  */
 public class SolidSwitch {
     private ArrayList<SolidSwitch> children;
+    private int switches = 0;
     
     
     public SolidSwitch(){
@@ -67,5 +68,12 @@ public class SolidSwitch {
 //    void setMaster(SolidGlobalSwitch get) {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 //    }
+    public int switches(){
+        int switches = 1;
+        for(SolidSwitch s : children){
+            switches += s.switches();
+        }
+        return switches;
+    }
         
 }
