@@ -6,12 +6,10 @@
 package solid.spintaxer;
 
 import java.util.ArrayList;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Arrays;
+import java.util.Random;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -25,13 +23,14 @@ public class SolidSwitchTest {
     
     //TO DO: FIX THESE AND TURN THEM INTO TEST CASES
     /**
-     *         System.out.println("This program is a proof of concept");
+     *  
+     *  System.out.println("This program is a proof of concept");
         System.out.println("Please type a text using the Solid "
                 + "Spintax format and press enter when done");
         
 	System.out.println("You entered ");
 	System.out.println("Processing...");
-      String input = "Project @{hello | {foo|bar} | {100-200}} is ..."
+        String input = "Project @{hello | {foo|bar} | {100-200}} is ..."
                + "Projecct @@{hello | {foo|bar} | {100-200}} is ...";
         SolidStrSwitch foo = new SolidStrSwitch("foo");
         SolidStrSwitch bar = new SolidStrSwitch("bar");
@@ -112,7 +111,6 @@ public class SolidSwitchTest {
      */
     @Test
     public void testSpinStrBasic() {
-        System.out.println("spin");
         SolidSwitch instance = new SolidSwitch();
         String option1S = "foo";
         String option2S = "bar";
@@ -121,8 +119,10 @@ public class SolidSwitchTest {
         instance.addChild(option1);
         instance.addChild(option2);
         ArrayList<String> results = new ArrayList<String>();
+        Random rand = new Random();
         for(int i = 0; i < repetitions; i++){
-            results.add(instance.spin(1));
+            int perm = rand.nextInt(2);
+            results.add(instance.spin(perm));
         }
         assert(results.contains(option1S));
         assert(results.contains(option2S));
@@ -134,13 +134,41 @@ public class SolidSwitchTest {
      */
     @Test
     public void testToString() {
-        System.out.println("toString");
         SolidSwitch instance = new SolidSwitch();
-        String expResult = "";
+        SolidStrSwitch sSwitch = new SolidStrSwitch("test");
+        instance.addChild(sSwitch);
+        String expResult = "{test}";
         String result = instance.toString();
+//        System.out.println(expResult + "  " + result);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+//        fail("The test case is a prototype.");
     }
+    
+    @Test
+    public void testIntSwitchBasic(){
+        SolidSwitch instance = new SolidSwitch();
+        SolidIntSwitch iSwitch = new SolidIntSwitch(0,6);
+        instance.addChild(iSwitch);
+        String result = instance.toString();
+        ArrayList<String> results = new ArrayList<String>();
+        Random rand = new Random();
+        for(int i = 0; i < repetitions; i++){
+            int perm = rand.nextInt(7);
+            results.add(instance.spin(perm));
+        }
+        Integer array[] = {0,1,2,3,4,5,6};
+        for(String entry : results){
+            int num = Integer.parseInt(entry);
+            assert(Arrays.asList(array).contains(num));
+        }
+    }
+    
+    @Test
+    public void testGlobalSwitchBasic(){
+        
+    }
+    
+    
     
 }

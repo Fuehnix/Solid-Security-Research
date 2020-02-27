@@ -49,6 +49,7 @@ public class SolidSpintaxer {
         int version = 1;
         FileWriter logf = null;
         ArrayList<Integer> list = new ArrayList<Integer>();
+        Scanner in = new Scanner(System.in);
         try{
             logf = new FileWriter(new File("logfile.txt"));
         } catch (Exception e){
@@ -68,7 +69,6 @@ public class SolidSpintaxer {
         + " :./++++NMMMMMMMMMMMMM.                                                         \n"
         + "================================================================================\n");
         printAndLog("Solid Spinner v. " + version + " (Solid Spintax Standard v. " + version + ")");
-        output.append("Solid Spinner v. " + version + " (Solid Spintax Standard v. " + version + ")");
         try{
             fileInput = args[0];
         } catch(Exception e){
@@ -221,15 +221,32 @@ public class SolidSpintaxer {
                     + permutations + " permutations");
             printAndLog(text.toString());
             
-            if(aFlag){
+            if(aFlag) {
                 numOfFiles = permutations;
             }
-            if(aFlag && permutations > fileWarningNum){
-                printAndLog("Warning, this will create " + permutations + 
-                        " files");
+            if(aFlag && permutations > fileWarningNum) {
+                boolean validAnswer = false;
+                while(!validAnswer){
+                    printAndLog("Warning, this will create " + permutations + 
+                            " files");
+                    printAndLog("Do you wish to continue? [y/n]");
+                    String answer = in.nextLine();
+                    printAndLog("You entered " + answer);
+                    if(answer == "n"){
+                        if(fFlag){
+                            logf.write(output.toString());
+                            logf.close();
+                        }
+                        return;
+                    } else if (answer == "y"){
+                        validAnswer = true;
+                    } else {
+                        printAndLog("Invalid answer, please answer [y/n]");
+                    }
+                }
             }
             
-            if(aFlag && permutations > fileRejectNum){
+            if(aFlag && permutations > fileRejectNum) {
                 printAndLog("Warning, this will print " + fileRejectNum + 
                         " cases");
                 if(fFlag){
@@ -250,6 +267,7 @@ public class SolidSpintaxer {
             printAndLog("Generating " + numOfFiles + "output files...");
             printAndLog("NO   FILE            TAG     PERMUTATION");
             Random rand = new Random();
+            
             for(int i = 0; i < numOfFiles; i++) {
                 FileWriter fw = new FileWriter(new File(Integer.toString(i) 
                         + fileInput));
@@ -262,10 +280,14 @@ public class SolidSpintaxer {
                 String tag = Integer.toString(permGiven, 36); 
                 printAndLog(i + "    " + Integer.toString(i) 
                         + fileInput + "    " + tag + "    " + permGiven);
-                fw.write(text.spin(permGiven).toString());
+                String wString = text.spin(permGiven).toString();
+                System.out.println(wString);
+                fw.write(wString);
                 permGiven++;
+                fw.close();
             }
-        }catch(Exception e){
+        } catch(Exception e){
+            printAndLog("Error occured while creating spintax");
             e.printStackTrace();
         }
 
@@ -292,7 +314,7 @@ public class SolidSpintaxer {
     
     public static SolidText parse(String input){
 //        System.out.print("parse(" + input + ") = ");
-        if(input.matches("\\{[0-9]+-[0-9]+\\}")){
+        if(input.matches("\\{[0-9]+-[0-9]+\\}")) {
             SolidText text = new SolidText();
             int pos = input.indexOf("-");
             int min = Integer.parseInt(input.substring(1, pos));
@@ -381,6 +403,6 @@ public class SolidSpintaxer {
     }
     public static void printAndLog(String in){
         System.out.println(in);
-        output.append(in);
+        output.append(in + "\n");
     }
 }

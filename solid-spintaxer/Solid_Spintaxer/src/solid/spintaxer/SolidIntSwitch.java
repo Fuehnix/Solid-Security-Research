@@ -25,7 +25,7 @@ public class SolidIntSwitch extends SolidSwitch {
         int range = max - min + 1;
         if(tag + min > max){
             System.out.println("SolidIntSwitch tag not in range");
-//            throw new Exception(); 
+            return "ERROR";
         }
         int num = tag + min;
         String out = Integer.toString(num);

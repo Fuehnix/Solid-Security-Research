@@ -1,0 +1,22 @@
+
+       /MMM/ yMMm .MMMs                                                         
+       /MMMmdNMMMddMMMs                                                         
++ ++++++ssssdMMMMMMMMMo    -\\\\\\\\\   `:///////-  `/-         -/` -/////////. 
+ `/`++++smNNNNNNMMMMy-    oMy          /NhoooooooNh .My         sM: sMsoooooosMs
+           syyyyMMM.      +My++++++oo. hM.       yM .My         sM: sM-       NM
+    `/.++++sssssMMM`               sMy hM.       yM .My         sM: sM-       NM
+     `/.+++mNNNNMMM`      +My++++++yMs /NhoooooosNh .Md+++++++: sM: sMsooooooyMo
+         :syyyyhMMMh/      -////////-   `:///////.  `/////////- -/` -////////:` 
+  `/`+++ssssmMMMMMMMMN`                                                         
+ :./++++NMMMMMMMMMMMMM.                                                         
+================================================================================
+
+Solid Spinner v. 1 (Solid Spintax Standard v. 1)
+Loading input file (spintax.txt)...
+Loaded 198 characters
+Loaded 9 switches constituting 104 permutations
+Introducing project @{hello|{foo|bar}|{100-200}}. Project @{hello|{foo|bar}|{100-200}} is a new security initiative from Solid Security. Our goal with project @{hello|{foo|bar}|{100-200}} is to...
+
+Generating 1output files...
+NO   FILE            TAG     PERMUTATION
+0    0spintax.txt    7    7
