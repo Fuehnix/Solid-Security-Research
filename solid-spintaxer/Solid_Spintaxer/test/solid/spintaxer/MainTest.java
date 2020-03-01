@@ -159,7 +159,8 @@ public class MainTest {
     public void testCreationFromPerm(){
         try{
             int numOfFiles = 3;
-            String[] args = new String[]{"spintax.txt","-n",Integer.toString(numOfFiles)};
+            int permGiven = 0;
+            String[] args = new String[]{"spintax.txt","-p",Integer.toString(permGiven)};
             SolidSpintaxer.main(args);
             System.setOut(originalOut);
             String expected = introText;
@@ -174,31 +175,80 @@ public class MainTest {
             expected += "Generating " + numOfFiles + "output files...\n\n";
             expected += "NO   FILE            TAG     PERMUTATION\n\n";
             String result = outContent.toString();
-            for(int i = 0; i < expected.toString().length(); i++){
-                //this part prevents pointless errors with null char comparisons
-                if(Character.getNumericValue(result.charAt(i)) == -1 && Character.getNumericValue(expected.charAt(i)) == -1){
-                    continue;
-                }
-                if(result.charAt(i) != expected.charAt(i)){
-                    System.out.print("these are different ");
-                    System.out.print(result.substring(i-100,i));
-                    System.out.print("here");
-                    System.out.print(result.substring(i, i+100));
-                    
-                    System.out.print(expected.substring(i-100,i));
-                    System.out.print("here");
-                    System.out.print(result.substring(i, i+100));
-                    System.out.println(Character.getNumericValue(result.charAt(i)) + " equals " + Character.getNumericValue(expected.charAt(i)));
-                    System.out.println(result.charAt(i) + " equals " + expected.charAt(i));
-                    assert(false);
-                }
-            }
-            assert(true);
-            for(int i = 0; i < numOfFiles; i++){
-                String name = Integer.toString(i) + "spintax.txt";
-                assert(result.contains(name));
-            }
-//            assertEquals(logo+ "\n" + version + "\n", outContent.toString());
+            assert(result.contains(text.toString()));
+            assert(result.contains(text.spin(0)));
+        } catch(Exception e){
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+    
+    @Test
+    public void testSequential(){
+        try{
+            int numOfFiles = 3;
+            String[] args = new String[]{"spintax.txt","-n",Integer.toString(numOfFiles),"-s"};
+            SolidSpintaxer.main(args);
+//            System.setOut(originalOut);
+            String expected = introText;
+            String input = readFileAsString(fileInput);
+            expected += "Loading input file (" + fileInput + ")...\n\n";
+            expected += "Loaded " + input.length() + " characters\n\n";
+            SolidText text = parse(input);
+            int permutations = text.permutations();
+            expected += "Loaded " + text.switches() + " switches constituting "
+                    + permutations + " permutations\n\n";
+            expected += text.toString() + "\n\n";
+            expected += "Generating " + numOfFiles + "output files...\n\n";
+            expected += "NO   FILE            TAG     PERMUTATION\n\n";
+            String result = outContent.toString();
+            assert(result.contains(text.toString()));
+            assert(result.contains(text.spin(0)));
+        } catch(Exception e){
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+    
+    @Test
+    public void testBadFlagMissingCount(){
+        try{
+            int numOfFiles = 3;
+            String[] args = new String[]{"spintax.txt","-n"};
+            SolidSpintaxer.main(args);
+            System.setOut(originalOut);
+            String result = outContent.toString();
+            assert(result.contains("Error"));
+        } catch(Exception e){
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+    
+    @Test
+    public void testBadFlagMissingPerm(){
+        try{
+            int numOfFiles = 3;
+            String[] args = new String[]{"spintax.txt","-p"};
+            SolidSpintaxer.main(args);
+            System.setOut(originalOut);
+            String result = outContent.toString();
+            assert(result.contains("Error"));
+        } catch(Exception e){
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+    
+    @Test
+    public void testBadFlagRandPerm(){
+        try{
+            int numOfFiles = 3;
+            String[] args = new String[]{"spintax.txt","-r","-p","0"};
+            SolidSpintaxer.main(args);
+            System.setOut(originalOut);
+            String result = outContent.toString();
+            assert(result.contains("Error"));
         } catch(Exception e){
             e.printStackTrace();
             assert(false);
@@ -206,11 +256,21 @@ public class MainTest {
     }
     
     
+    //unclear how to test, System.in delay ruins the other tests.
+//    @Test
+//    public void testAllPermutationWarning(){
+//        try{
+//            int numOfFiles = 3;
+//            String[] args = new String[]{"spintax.txt","-a"};
+//            SolidSpintaxer.main(args);
+//            String result = outContent.toString();
+//            assert(result.contains("Warning"));
+//            System.setOut(originalOut);
+//        } catch(Exception e){
+//            e.printStackTrace();
+//            assert(false);
+//        }
+//    }
     
     
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
 }

@@ -32,7 +32,7 @@ public class SolidSpintaxer {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException{
-        boolean nFlag = true;
+        boolean nFlag = false;
         boolean rFlag = false;
         boolean pFlag = false;
         boolean sFlag = false;
@@ -91,11 +91,12 @@ public class SolidSpintaxer {
                     try{
                         numOfFiles = Integer.parseInt(args[i+1]);
                     } catch(Exception e){
-                        e.printStackTrace();
+//                        e.printStackTrace();
                         printAndLog("Error: invalid arg format. Please"
                                 + " run with -help or -h to see proper format");
                         output.append("Error: invalid arg format. Please"
                                 + " run with -help or -h to see proper format");
+                        return;
                     }
                     break;
                 case "-r":
@@ -111,11 +112,12 @@ public class SolidSpintaxer {
                         permGiven = Integer.parseInt(args[i+1]);
                         fileStartNum = permGiven;
                     } catch(Exception e){
-                        e.printStackTrace();
+//                        e.printStackTrace();
                         printAndLog("Error: invalid arg format. Please"
                                 + " run with -help or -h to see proper format");
                         output.append("Error: invalid arg format. Please"
                                 + " run with -help or -h to see proper format");
+                        return;
                     }
                     break;
                 case "-s":
@@ -139,8 +141,6 @@ public class SolidSpintaxer {
                 case "--logfile":
                     //shows the file output names and the system commandline outputs
                     fFlag = true;
-                         
-                    
                     break;
                 case "-o":
                 case "--out":
@@ -150,12 +150,13 @@ public class SolidSpintaxer {
                     try{
                         fileOut = args[i+1];
                     } catch(Exception e){
-                        e.printStackTrace();
+//                        e.printStackTrace();
                         printAndLog("Error: invalid arg format. Please"
                                 + " run with -help or -h to see proper format");
                         output.append("Error: invalid arg format. Please"
                                 + " run with -help or -h to see proper format");
-                    }
+                        return; 
+                   }
                     break;
                 case "-a":
                 case "--all":
@@ -175,11 +176,12 @@ public class SolidSpintaxer {
                         permGiven = Integer.parseInt(args[i+1],36);
                         fileStartNum = permGiven;
                     } catch(Exception e){
-                        e.printStackTrace();
+//                        e.printStackTrace();
                         printAndLog("Error: invalid arg format. Please"
                                 + " run with -help or -h to see proper format");
                         output.append("Error: invalid arg format. Please"
                                 + " run with -help or -h to see proper format");
+                        return;
                     }
             }
         }
@@ -203,9 +205,9 @@ public class SolidSpintaxer {
         }
         
         if(sFlag && rFlag){
-            printAndLog("ERROR: permutations cannot "
+            printAndLog("Error: permutations cannot "
                     + "be both random and sequential");
-            output.append("ERROR: permutations cannot "
+            output.append("Error: permutations cannot "
                     + "be both random and sequential");
             if(fFlag){
                 logf.write(output.toString());
@@ -215,9 +217,9 @@ public class SolidSpintaxer {
         }
         
         if(pFlag && rFlag){
-            printAndLog("ERROR: permutations cannot "
+            printAndLog("Error: permutations cannot "
                     + "be both random and created from permutation");
-            output.append("ERROR: permutations cannot "
+            output.append("Error: permutations cannot "
                     + "be both random and created from permutation");
             if(fFlag){
                 logf.write(output.toString());
@@ -241,21 +243,24 @@ public class SolidSpintaxer {
             if(aFlag) {
                 numOfFiles = permutations;
             }
-            if(aFlag && permutations > fileWarningNum) {
+            
+            if(numOfFiles > fileWarningNum) {
                 boolean validAnswer = false;
                 while(!validAnswer){
-                    printAndLog("Warning, this will create " + permutations + 
+                    printAndLog("Warning, this will create " + numOfFiles + 
                             " files");
                     printAndLog("Do you wish to continue? [y/n]");
                     String answer = in.nextLine();
                     printAndLog("You entered " + answer);
-                    if(answer == "n"){
+                    System.out.println("\n");
+                    System.out.println(answer);
+                    if(answer.equals("n")){
                         if(fFlag){
                             logf.write(output.toString());
                             logf.close();
                         }
                         return;
-                    } else if (answer == "y"){
+                    } else if (answer.equals("y")){
                         validAnswer = true;
                     } else {
                         printAndLog("Invalid answer, please answer [y/n]");
@@ -263,9 +268,9 @@ public class SolidSpintaxer {
                 }
             }
             
-            if(aFlag && permutations > fileRejectNum) {
-                printAndLog("Warning, this will print " + fileRejectNum + 
-                        " cases");
+            if(numOfFiles > fileRejectNum) {
+                printAndLog("Error: printing " + fileRejectNum + 
+                        " cases is not supported.");
                 if(fFlag){
                     logf.write(output.toString());
                     logf.close();
@@ -273,7 +278,7 @@ public class SolidSpintaxer {
                 return;
             }
             
-            if(fileOut == "") {
+            if(fileOut.equals("")) {
                 fileOut = fileInput;
             }
             
@@ -305,7 +310,8 @@ public class SolidSpintaxer {
             }
         } catch(Exception e){
             printAndLog("Error occured while creating spintax");
-            e.printStackTrace();
+//            e.printStackTrace();
+            return;
         }
         
         if(fFlag){
