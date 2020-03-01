@@ -24,41 +24,7 @@ public class SolidSwitchTest {
     //TO DO: FIX THESE AND TURN THEM INTO TEST CASES
     /**
      *  
-     *  System.out.println("This program is a proof of concept");
-        System.out.println("Please type a text using the Solid "
-                + "Spintax format and press enter when done");
-        
-	System.out.println("You entered ");
-	System.out.println("Processing...");
-        String input = "Project @{hello | {foo|bar} | {100-200}} is ..."
-               + "Projecct @@{hello | {foo|bar} | {100-200}} is ...";
-        SolidStrSwitch foo = new SolidStrSwitch("foo");
-        SolidStrSwitch bar = new SolidStrSwitch("bar");
-        SolidSwitch foobar = new SolidSwitch();
-        foobar.addChild(foo);
-        foobar.addChild(bar);
-        SolidStrSwitch hello = new SolidStrSwitch("hello");
-        SolidIntSwitch intSwitch = new SolidIntSwitch(100,200);
-        SolidGlobalSwitch mainSwitch = new SolidGlobalSwitch();
-       mainSwitch.addChild(hello);
-        mainSwitch.addChild(foobar);
-        mainSwitch.addChild(intSwitch);
-        SolidGlobalSwitch switch2 = new SolidGlobalSwitch();
-        switch2.addChild(hello);
-        switch2.addChild(foobar);
-        switch2.addChild(intSwitch);
-        switch2.setMaster(mainSwitch);
-       SolidStrSwitch project = new SolidStrSwitch("Project ");
-       SolidStrSwitch is = new SolidStrSwitch(" is ... \n");
-       SolidText text = new SolidText();
-       text.addSwitch(project);
-       text.addSwitch(mainSwitch);
-       text.addSwitch(is);
-       text.addSwitch(project);
-        text.addSwitch(switch2);
-        text.addSwitch(is);
-        System.out.println(text.spin());
-        System.out.println("test2");
+     *  
         SolidIntSwitch test = new SolidIntSwitch(1000,9000);
         System.out.println(test.spin(8000));
         SolidSwitch s1 = new SolidSwitch();
@@ -166,8 +132,70 @@ public class SolidSwitchTest {
     
     @Test
     public void testGlobalSwitchBasic(){
-        
+        String input = "Project @{hello | {foo|bar} | {100-200}} is ..."
+                    + "Projecct @{hello | {foo|bar} | {100-200}} is ...";
+        SolidStrSwitch foo = new SolidStrSwitch("foo");
+        SolidStrSwitch bar = new SolidStrSwitch("bar");
+        SolidSwitch foobar = new SolidSwitch();
+        foobar.addChild(foo);
+        foobar.addChild(bar);
+        SolidStrSwitch hello = new SolidStrSwitch("hello");
+        SolidIntSwitch intSwitch = new SolidIntSwitch(100,200);
+        SolidGlobalSwitch mainSwitch = new SolidGlobalSwitch();
+        mainSwitch.addChild(hello);
+        mainSwitch.addChild(foobar);
+        mainSwitch.addChild(intSwitch);
+        SolidGlobalSwitch switch2 = new SolidGlobalSwitch();
+        switch2.addChild(hello);
+        switch2.addChild(foobar);
+        switch2.addChild(intSwitch);
+        switch2.setMaster(mainSwitch);
+        SolidStrSwitch project = new SolidStrSwitch("Project ");
+        SolidStrSwitch is = new SolidStrSwitch(" is ... \n");
+        SolidText text = new SolidText();
+        text.addSwitch(project);
+        text.addSwitch(mainSwitch);
+        text.addSwitch(is);
+        text.addSwitch(project);
+        text.addSwitch(switch2);
+        text.addSwitch(is);
+        int perm = text.permutations();
+        for(int i = 0; i < perm; i++){
+            String out = text.spin(i);
+            String[] arrOut = out.split("\n");
+//            System.out.println(arrOut[0]);
+//            System.out.println(arrOut[1]);
+            assert(arrOut[0].equals(arrOut[1]));
+        }
     }
+    
+    @Test
+    public void testSolidText(){
+        SolidIntSwitch int010 = new SolidIntSwitch(0,10);
+        SolidIntSwitch int0102 = new SolidIntSwitch(0,10);
+        SolidIntSwitch int0103 = new SolidIntSwitch(0,10);
+        SolidText test2 = new SolidText();
+        test2.addSwitch(int010);
+        test2.addSwitch(int0102);
+        test2.addSwitch(int0103);
+        int perm = test2.permutations();
+        for(int i = 0; i < perm; i++){
+            int tag = i;
+            String out = test2.spin(i);
+            int s1 = tag % 11;
+            tag = (tag-s1)/11;
+            int s2 = tag % 11;
+            tag = (tag-s2)/11;
+            int s3 = tag % 11;
+            tag = tag-s3/11;
+            String expected = Integer.toString(s1);
+            expected += Integer.toString(s2);
+            expected += Integer.toString(s3);
+            assert(Integer.parseInt(out) == Integer.parseInt(expected));
+        }
+    }
+    
+    
     
     
     

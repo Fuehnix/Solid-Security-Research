@@ -368,7 +368,7 @@ public class SolidSpintaxer {
                             SolidGlobalSwitch.switches.put(contents, globalSwitch);
                         }
                     }
-                    
+
                     currSwitch = new SolidSwitch();
                     substring = "";
                     //printAndLog(substring);
@@ -401,6 +401,7 @@ public class SolidSpintaxer {
         }
         return out;
     }
+    
     public static void printAndLog(String in){
         System.out.println(in);
         output.append(in + "\n");

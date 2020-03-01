@@ -34,7 +34,6 @@ public class SolidText extends SolidSwitch {
             int childTag = tag % currPermutations;
             out += sswitch.spin(childTag);
             tag = (tag-childTag)/currPermutations;
-            
         }
         return out;
     }
