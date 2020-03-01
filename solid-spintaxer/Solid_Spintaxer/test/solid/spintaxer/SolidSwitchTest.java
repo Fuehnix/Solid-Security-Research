@@ -195,6 +195,46 @@ public class SolidSwitchTest {
         }
     }
     
+    @Test
+    public void testIntSwitchBoundsSame(){
+        SolidSwitch instance = new SolidSwitch();
+        SolidIntSwitch iSwitch = new SolidIntSwitch(0,0);
+        instance.addChild(iSwitch);
+        String result = instance.toString();
+        ArrayList<String> results = new ArrayList<String>();
+        Random rand = new Random();
+        int perm = instance.permutations();
+        for(int i = 0; i < repetitions; i++){
+            int tag = rand.nextInt(perm);
+            results.add(instance.spin(tag));
+        }
+        for(String entry : results){
+            int num = Integer.parseInt(entry);
+            assert(num == 0);
+        }
+    }
+    
+    @Test
+    public void testIntSwitchBoundsInclusiveBounds(){
+        SolidSwitch instance = new SolidSwitch();
+        SolidIntSwitch iSwitch = new SolidIntSwitch(0,1);
+        instance.addChild(iSwitch);
+        String result = instance.toString();
+        ArrayList<String> results = new ArrayList<String>();
+        Random rand = new Random();
+        int perm = instance.permutations();
+        for(int i = 0; i < repetitions; i++){
+            int tag = rand.nextInt(perm);
+            results.add(instance.spin(tag));
+        }
+        Integer array[] = {0,1};
+        for(int entry : array){
+            assert(results.contains(Integer.toString(entry)));
+        }
+    }
+    
+    
+    
     
     
     

@@ -32,7 +32,7 @@ public class SolidSpintaxer {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException{
-        boolean nFlag = false;
+        boolean nFlag = true;
         boolean rFlag = false;
         boolean pFlag = false;
         boolean sFlag = false;
@@ -43,19 +43,21 @@ public class SolidSpintaxer {
         boolean aFlag = false;
         boolean uFlag = false;
         boolean vFlag = false;
-        int numOfFiles = 1;
+        int numOfFiles = 3;
         int permGiven = 0;
         int fileStartNum = 0;
         int version = 1;
         FileWriter logf = null;
         ArrayList<Integer> list = new ArrayList<Integer>();
         Scanner in = new Scanner(System.in);
+        
         try{
             logf = new FileWriter(new File("logfile.txt"));
         } catch (Exception e){
             System.out.println("Error: failed to create log file");
             return;
         }
+        
         String fileInput;
         printAndLog("\n       /MMM/ yMMm .MMMs                                                         \n"
         + "       /MMMmdNMMMddMMMs                                                         \n"
@@ -69,11 +71,13 @@ public class SolidSpintaxer {
         + " :./++++NMMMMMMMMMMMMM.                                                         \n"
         + "================================================================================\n");
         printAndLog("Solid Spinner v. " + version + " (Solid Spintax Standard v. " + version + ")");
+        
         try{
             fileInput = args[0];
         } catch(Exception e){
             fileInput = "spintax.txt";
         }
+        
         String fileOut = "";
         for(int i = 0; i < args.length; i++){
             switch(args[i]) {
@@ -197,11 +201,24 @@ public class SolidSpintaxer {
         if(vFlag){
             return;
         }
+        
         if(sFlag && rFlag){
             printAndLog("ERROR: permutations cannot "
                     + "be both random and sequential");
             output.append("ERROR: permutations cannot "
                     + "be both random and sequential");
+            if(fFlag){
+                logf.write(output.toString());
+                logf.close();
+            }
+            return;
+        }
+        
+        if(pFlag && rFlag){
+            printAndLog("ERROR: permutations cannot "
+                    + "be both random and created from permutation");
+            output.append("ERROR: permutations cannot "
+                    + "be both random and created from permutation");
             if(fFlag){
                 logf.write(output.toString());
                 logf.close();
@@ -290,22 +307,7 @@ public class SolidSpintaxer {
             printAndLog("Error occured while creating spintax");
             e.printStackTrace();
         }
-
-            
-            
-        // TODO code application logic here
-
-//        SolidText ex1 = parse("Introducing project "
-//                + "@{hello|{foo|bar}|{100-200}}. Project "
-//                + "@{hello|{foo|bar}|{100-200}} is a new security initiative "
-//                + "from Solid Security. Our goal with project "
-//                + "@{hello|{foo|bar}|{100-200}} is to...");
-//        // SolidText text = parse("Hello");
-//        printAndLog(ex1);
-//        printAndLog(ex1.spin(5));
-////        printAndLog(text.spin(1));
-//        printAndLog("There are " + ex1.permutations() + " possible "
-//                + "permutations");
+        
         if(fFlag){
             logf.write(output.toString());
             logf.close();
