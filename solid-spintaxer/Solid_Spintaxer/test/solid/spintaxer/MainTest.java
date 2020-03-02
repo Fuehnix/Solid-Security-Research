@@ -202,6 +202,7 @@ public class MainTest {
             expected += "Generating " + numOfFiles + "output files...\n\n";
             expected += "NO   FILE            TAG     PERMUTATION\n\n";
             String result = outContent.toString();
+//            System.out.println(result);
             assert(result.contains(text.toString()));
             assert(result.contains(text.spin(0)));
         } catch(Exception e){
