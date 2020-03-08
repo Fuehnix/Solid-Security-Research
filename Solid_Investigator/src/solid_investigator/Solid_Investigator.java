@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Scanner;
 import solid.spintax.spinner.*;
 import solid.spintax.spinner.SolidSpintax.*;
+import org.apache.commons.text.similarity.*;
 
 
 /**
@@ -29,159 +30,61 @@ public class Solid_Investigator {
     private static StringBuilder output = new StringBuilder();
 
     /**
+     * NOTES FOR WHEN YOU COME BACK TO THIS:
+     * LOOK INTO CS 440 LECTURE, UNDER VECTOR SEMANTICS
+     * ALSO, LOOK INTO WHAT IS THE BEST METHOD FOR IMPARTIAL DISTANCE
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException{
-        String spintaxS = "Project {hello|foo|bar|goodbye}";
+        String spintax = "Project {hello|foo|bar|goodbye}";
         String leak = "Project foo";
-        Map<BigInteger, String> tagDatabase = new HashMap<BigInteger,String>();
-        SolidSpintaxElement spintaxE = SolidSpintaxSpinner.parse(spintaxS);
-        tagDatabase.put(BigInteger.valueOf(0), "Sally");
-        tagDatabase.put(BigInteger.valueOf(1), "Mary");
-        tagDatabase.put(BigInteger.valueOf(3), "Bob");
-        Map<BigInteger, String> permutations = new HashMap<BigInteger,String>();
-        BigInteger leakTag = BigInteger.valueOf(-1);
-        for (Map.Entry<BigInteger,String> entry : tagDatabase.entrySet()){
-            BigInteger currTag = entry.getKey();
-            String docPerm = spintaxE.spin(currTag);
-            permutations.put(currTag, docPerm);
-        }
-        for(Map.Entry<BigInteger,String> entry : permutations.entrySet()){
-            boolean match = true;
-            String docPerm = entry.getValue();
-            for(int i = 0; i < leak.length();i++){
-               char currCharP = docPerm.charAt(i);
-               char currCharL = leak.charAt(i);
-               if(currCharP != currCharL){
-                   match = false;
-               }
-            }
-            if(match){
-                leakTag = entry.getKey();
-            }
-        }
-        String leaker = tagDatabase.get(leakTag);
+        Map<String, String> tagDatabase = new HashMap<String,String>();
+        tagDatabase.put("0", "Sally");
+        tagDatabase.put("1", "Mary");
+        tagDatabase.put("3", "Bob");
 //        BigInteger permutations = text.countPermutations();
         System.out.println("this is the leaker");
-        ArrayList<String> variants;
+        String leaker = identify(leak,spintax,tagDatabase);
         System.out.println(leaker);
-        BigInteger test = BigInteger.valueOf(100);
-        BigInteger mod = BigInteger.valueOf(11);
-        System.out.println(test.modInverse(mod));
-//        System.out.println(findPermutation(leak,text));
     }
     
-    public static int getSwitchEndIndex(String input){
-        boolean end = false;
-        int openBracesCount = 1;
-        int i = 0;
-        while(!end){
-            end = true;
-        }
-        return i;
-    }
-    
-    public static int findPermutation(String leak, SolidSpintaxSwitch spintax){
-        int perm = 0;
-        String spintaxS = spintax.toString();
-        int openBracesCount = 0;
-        int i = 0;
-        int j = 0;
-        int optionCounter = 0;
-        String substringL = "";
-        String substringS = "";
-        boolean match = true;
-//        ArrayList<SolidSpintaxSwitch> children = spintax.getChildren();
-        int lastMatchIndex = 0;
-        while(i < leak.length()){
-            char currL = leak.charAt(i);
-            char currS = spintaxS.charAt(j);
-            if(currL == currS){
-                i++;
-                j++;
-                substringS += currS;
-                substringL += currL;
-                System.out.println("substringL " + substringL);
-                System.out.println("substringS " + substringS);
-                continue;
+    public static String identify(String leak, String spintax, Map<String, String> tagDatabase){
+        String leaker = "";
+        SolidSpintaxElement spintaxE = SolidSpintaxSpinner.parse(spintax);
+        Map<String, String> permutations = createPermutationMap(spintaxE, tagDatabase);
+        Map<String,Integer> tagToDist = new HashMap<String,Integer>();
+        String mostLikelyLeaker = "";
+        for(Map.Entry<String,String> entry : permutations.entrySet()){
+            String docPerm = entry.getValue();
+            String currTag = entry.getKey();
+            LevenshteinDistance lev = new LevenshteinDistance();
+            int dist = lev.apply(leak,docPerm);
+            tagToDist.put(currTag,dist);
+            int mostLikelyLeakerDist;
+            if(mostLikelyLeaker.equals("")){
+                mostLikelyLeaker = currTag;
+                mostLikelyLeakerDist = dist;
+            } else{
+                mostLikelyLeakerDist = tagToDist.get(mostLikelyLeaker);
+                if(mostLikelyLeakerDist > dist){
+                    mostLikelyLeaker = currTag;
+                }
             }
-            if(currS == '@'){
-                continue;
-            } else if(currS == '{' && currL != '{'){
-                openBracesCount += 1;
-                if(openBracesCount == 1){
-                    System.out.println(substringL.equals(substringS));
-                    substringS = "";
-                    substringL = "";
-                    lastMatchIndex = i;
-                    j++;
-                    optionCounter++;
-                    continue;
-                }
-            } else if(currS == '|' && currL != '|'){
-                if(openBracesCount == 1){
-                    if(match){
-                        System.out.println(";aldskfjasdk;fj;adslkfj");
-//                        System.out.println(children.get(optionCounter));
-//                        perm = findPermutation(substringL, children.get(optionCounter));
-                        System.out.println(optionCounter);
-                        perm = optionCounter;
-                        return perm;
-                    }
-                    System.out.println(substringL);
-//                    System.out.println(children.get(optionCounter));
-                    j++;
-                    substringS = "";
-                    lastMatchIndex = i;
-                    continue;
-                }
-            } else if(currS == '}' && currL != '}'){
-                openBracesCount -= 1;
-                if(openBracesCount == 0){
-                    if(match){
-                        System.out.println(";aldskfjasdk;fj;adslkfj");
-//                        System.out.println(children.get(optionCounter));
-//                        perm = findPermutation(substringL, children.get(optionCounter));
-                        System.out.println(optionCounter);
-                        perm = optionCounter;
-                        return perm;
-                    }
-                    optionCounter++;
-//                    System.out.println(children.get(optionCounter));
-                    System.out.println(substringL);
-                    j++;
-                    substringS = "";
-                    lastMatchIndex = i;
-                    continue;
-                }
-            }  else {
-                match = false;
-                System.out.println("currL " + currL);
-                System.out.println("currS " + currS);
-                j++;
-                i = lastMatchIndex;
-                continue;
-            }
+            System.out.println(dist);
         }
-        System.out.println("RETURN PERM");
-        return perm;
+        return mostLikelyLeaker;
     }
     
-    public static ArrayList<Integer> getUniquePerms(int permutations, int numOfPerms){
-        ArrayList<Integer> list = new ArrayList<Integer>();
-        ArrayList<Integer> out = new ArrayList<Integer>();
-        for (int i=1; i<11; i++) {
-            list.add(i);
+    public static Map<String, String> createPermutationMap(SolidSpintaxElement spintax, Map<String, String> tagDatabase){
+        Map<String, String> permutations = new HashMap<String,String>();
+        for (Map.Entry<String,String> entry : tagDatabase.entrySet()){
+            String currTag = entry.getKey();
+            BigInteger perm = new BigInteger(currTag,32);
+            String docPerm = spintax.spin(perm);
+            permutations.put(currTag, docPerm);
         }
-        Collections.shuffle(list);
-        for (int i=0; i<numOfPerms; i++) {
-            out.add(list.get(i));
-        }
-        return out;
+        return permutations;
     }
     
-    public static void printAndLog(String in){
-        System.out.println(in);
-        output.append(in + "\n");
-    }
+    
 }
