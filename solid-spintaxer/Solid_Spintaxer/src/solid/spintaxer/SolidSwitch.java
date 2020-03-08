@@ -5,6 +5,7 @@
  */
 package solid.spintaxer;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -25,15 +26,15 @@ public class SolidSwitch {
         children.add(child);
     }
     
-    public String spin(int tag){
+    public String spin(BigInteger tag){
         int length = children.size();
         //absolute int range
         for(int i = 0; i < children.size(); i++){
-            int curPermutations = children.get(i).permutations();
-            if(tag < curPermutations){
+            BigInteger curPermutations = children.get(i).permutations();
+            if(tag.compareTo(curPermutations) == -1){
                 return children.get(i).spin(tag);
             } else {
-                tag -= curPermutations;
+                tag = tag.subtract(curPermutations);
             }
         }
         System.out.println("Error: tag not reached");
@@ -58,10 +59,10 @@ public class SolidSwitch {
         return children;
     }
     
-    public int permutations(){
-        int permutations = 0;
+    public BigInteger permutations(){
+        BigInteger permutations = BigInteger.ZERO;
         for (SolidSwitch s : children) {
-            permutations += s.permutations();
+            permutations = permutations.add(s.permutations());
         }
         return permutations;
     }

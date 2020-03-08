@@ -9,9 +9,17 @@ package solid_investigator;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Scanner;
+import solid.spintax.spinner.*;
+import solid.spintax.spinner.SolidSpintax.*;
+
 
 /**
  *
@@ -24,30 +32,43 @@ public class Solid_Investigator {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException{
-        String spintax = "Project {hello|foo|bar}";
+        String spintaxS = "Project {hello|foo|bar|goodbye}";
         String leak = "Project foo";
-        SolidText text = SolidSpintaxer.parse(spintax);
-        int permutations = text.permutations();
-//        System.out.println(variants);
-        System.out.println("this is the leak");
+        Map<BigInteger, String> tagDatabase = new HashMap<BigInteger,String>();
+        SolidSpintaxElement spintaxE = SolidSpintaxSpinner.parse(spintaxS);
+        tagDatabase.put(BigInteger.valueOf(0), "Sally");
+        tagDatabase.put(BigInteger.valueOf(1), "Mary");
+        tagDatabase.put(BigInteger.valueOf(3), "Bob");
+        Map<BigInteger, String> permutations = new HashMap<BigInteger,String>();
+        BigInteger leakTag = BigInteger.valueOf(-1);
+        for (Map.Entry<BigInteger,String> entry : tagDatabase.entrySet()){
+            BigInteger currTag = entry.getKey();
+            String docPerm = spintaxE.spin(currTag);
+            permutations.put(currTag, docPerm);
+        }
+        for(Map.Entry<BigInteger,String> entry : permutations.entrySet()){
+            boolean match = true;
+            String docPerm = entry.getValue();
+            for(int i = 0; i < leak.length();i++){
+               char currCharP = docPerm.charAt(i);
+               char currCharL = leak.charAt(i);
+               if(currCharP != currCharL){
+                   match = false;
+               }
+            }
+            if(match){
+                leakTag = entry.getKey();
+            }
+        }
+        String leaker = tagDatabase.get(leakTag);
+//        BigInteger permutations = text.countPermutations();
+        System.out.println("this is the leaker");
         ArrayList<String> variants;
-//        System.out.println(variants.indexOf(leak));
-        System.out.println(text.switches());
-//        System.out.println(text.getBody());
-//        for(SolidSwitch sswitch : text.getBody()){
-//            if(sswitch.switches() > 0){
-//                System.out.println(sswitch);
-//                System.out.println(sswitch.switches() + " > " + 0);
-//                variants = new ArrayList<String>();
-//                int num = sswitch.permutations();
-//                for(int k = 0; k < num; k++){
-//                    variants.add(sswitch.spin(k));
-//                }
-//                System.out.println(variants);
-//            }
-//        }
-        System.out.println(text.getBody());
-        System.out.println(findPermutation(leak,text));
+        System.out.println(leaker);
+        BigInteger test = BigInteger.valueOf(100);
+        BigInteger mod = BigInteger.valueOf(11);
+        System.out.println(test.modInverse(mod));
+//        System.out.println(findPermutation(leak,text));
     }
     
     public static int getSwitchEndIndex(String input){
@@ -60,7 +81,7 @@ public class Solid_Investigator {
         return i;
     }
     
-    public static int findPermutation(String leak, SolidSwitch spintax){
+    public static int findPermutation(String leak, SolidSpintaxSwitch spintax){
         int perm = 0;
         String spintaxS = spintax.toString();
         int openBracesCount = 0;
@@ -70,7 +91,7 @@ public class Solid_Investigator {
         String substringL = "";
         String substringS = "";
         boolean match = true;
-        ArrayList<SolidSwitch> children = spintax.getChildren();
+//        ArrayList<SolidSpintaxSwitch> children = spintax.getChildren();
         int lastMatchIndex = 0;
         while(i < leak.length()){
             char currL = leak.charAt(i);
@@ -101,7 +122,7 @@ public class Solid_Investigator {
                 if(openBracesCount == 1){
                     if(match){
                         System.out.println(";aldskfjasdk;fj;adslkfj");
-                        System.out.println(children.get(optionCounter));
+//                        System.out.println(children.get(optionCounter));
 //                        perm = findPermutation(substringL, children.get(optionCounter));
                         System.out.println(optionCounter);
                         perm = optionCounter;
@@ -119,14 +140,14 @@ public class Solid_Investigator {
                 if(openBracesCount == 0){
                     if(match){
                         System.out.println(";aldskfjasdk;fj;adslkfj");
-                        System.out.println(children.get(optionCounter));
+//                        System.out.println(children.get(optionCounter));
 //                        perm = findPermutation(substringL, children.get(optionCounter));
                         System.out.println(optionCounter);
                         perm = optionCounter;
                         return perm;
                     }
                     optionCounter++;
-                    System.out.println(children.get(optionCounter));
+//                    System.out.println(children.get(optionCounter));
                     System.out.println(substringL);
                     j++;
                     substringS = "";
