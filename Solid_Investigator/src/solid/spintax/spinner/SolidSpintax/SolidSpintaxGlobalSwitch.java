@@ -55,12 +55,4 @@ public class SolidSpintaxGlobalSwitch extends SolidSpintaxSwitch implements Soli
             return BigInteger.ONE;
         }
     }
-    
-    @Override
-    public BigInteger identify(String input){
-        BigInteger bi = new BigInteger(input);
-        System.out.println(bi);
-        bi = BigInteger.valueOf(10);
-        return bi;
-    }
 }

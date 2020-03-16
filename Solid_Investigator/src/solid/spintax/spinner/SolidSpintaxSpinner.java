@@ -38,12 +38,12 @@ import net.sourceforge.argparse4j.inf.Namespace;
  * @author Solid Security
  * @author Vivek Nair
  * @author Jacob Fuehne
- * @version 2.2.0
+ * @version 2.2.1
  * @since 2.0.0
  */
 public class SolidSpintaxSpinner {
     public static final String SPINTAX_VERSION = "1.0.0";
-    public static final String SPINNER_VERSION = "2.2.0 r01";
+    public static final String SPINNER_VERSION = "2.2.1 r02";
     private static final BigInteger FILE_WARNING_NUM = BigInteger.valueOf(100);
     private static final BigInteger FILE_REJECT_NUM = BigInteger.valueOf(100000);
     private static final StringBuilder logOutput = new StringBuilder();
@@ -85,7 +85,7 @@ public class SolidSpintaxSpinner {
                 .description("identifies a particular permutation to be generated");
         identifiers.addArgument("-p", "--permutation")
                 .metavar("<#>")
-                .type(Integer.class)
+                .type(BigInteger.class)
                 .help("generate the output document corresponding to a specific permutation number");
         identifiers.addArgument("-t", "--tag")
                 .metavar("<TAG>")
@@ -95,7 +95,7 @@ public class SolidSpintaxSpinner {
                 .description("specify where output files should be stored");
         output.addArgument("-n", "--count")
                 .metavar("<#>")
-                .type(Integer.class)
+                .type(BigInteger.class)
                 .setDefault(1)
                 .help("specifies the number of files to be generated");
         output.addArgument("-y", "--yes")
@@ -240,8 +240,8 @@ public class SolidSpintaxSpinner {
             System.out.println("Information about provided spintax file:");
             System.out.println("\tNumber of Switches: " + switches);
             System.out.println("\tNumber of Permutations: " + permutations);
-            System.out.println("\nValid Permutations: [" + min_perm + ", " + max_perm + "]");
-            System.out.println("\nValid Tags: [" + permToTag(min_perm) + ", " + permToTag(max_perm) + "]");
+            System.out.println("\tValid Permutations: [" + min_perm + ", " + max_perm + "]");
+            System.out.println("\tValid Tags: [" + permToTag(min_perm) + ", " + permToTag(max_perm) + "]");
             System.exit(0);
         }
 
@@ -457,7 +457,7 @@ public class SolidSpintaxSpinner {
         }
     }
 
-    public static SolidSpintaxElement parse(String input) {
+    private static SolidSpintaxElement parse(String input) {
         SolidSpintaxBlock text = new SolidSpintaxBlock();
         SolidSpintaxSwitch currSwitch;
         currSwitch = new SolidSpintaxSwitch();

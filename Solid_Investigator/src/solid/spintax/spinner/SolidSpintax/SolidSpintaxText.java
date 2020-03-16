@@ -50,12 +50,4 @@ public class SolidSpintaxText implements SolidSpintaxElement {
     public int countSwitches() {
         return 0;
     }
-    
-    @Override
-    public BigInteger identify(String input){
-        BigInteger bi = new BigInteger(input);
-        System.out.println(bi);
-        bi = BigInteger.valueOf(10);
-        return bi;
-    }
 }

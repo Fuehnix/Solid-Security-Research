@@ -89,12 +89,4 @@ public class SolidSpintaxSwitch implements SolidSpintaxElement {
         count = children.stream().map((s) -> s.countSwitches()).reduce(count, Integer::sum);
         return count;
     }
-    
-    @Override
-    public BigInteger identify(String input){
-        BigInteger bi = new BigInteger(input);
-        System.out.println(bi);
-        bi = BigInteger.valueOf(10);
-        return bi;
-    }
 }

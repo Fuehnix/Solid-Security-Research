@@ -48,11 +48,4 @@ public interface SolidSpintaxElement {
      * @since 2.0.0
      */
     public int countSwitches();
-    
-    /**
-     * Returns the permutation associated with the string input.
-     * @param input
-     * @return 
-     */
-    public BigInteger identify(String input);
 }
