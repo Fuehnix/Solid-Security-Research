@@ -457,7 +457,7 @@ public class SolidSpintaxSpinner {
         }
     }
 
-    private static SolidSpintaxElement parse(String input) {
+    public static SolidSpintaxElement parse(String input) {
         SolidSpintaxBlock text = new SolidSpintaxBlock();
         SolidSpintaxSwitch currSwitch;
         currSwitch = new SolidSpintaxSwitch();
