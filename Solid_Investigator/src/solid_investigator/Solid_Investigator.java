@@ -58,6 +58,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 public class Solid_Investigator {
     private static final String INVESTIGATOR_VERSION = "1.0.1";
     public static final String SPINTAX_VERSION = "1.0.1";
+    public static final int MAX_LOG_ITERATIONS = 100000;
 
     /**
      * Main method, runs upon program execution.
@@ -119,6 +120,9 @@ public class Solid_Investigator {
         output.addArgument("-d", "--data")
                 .metavar("<FILE>")
                 .help("outputs the modelling data to the provided file");
+        output.addArgument("-l","--logs")
+                .action(Arguments.storeTrue())
+                .help("outputs log information about Investigator activities, maximum 100000 logs");
         
         ArgumentGroup modes = parser.addArgumentGroup("modes")
                 .description("specify in which way the investigator determines the leak source.");
@@ -240,9 +244,8 @@ public class Solid_Investigator {
         
         String[] identArgs = {spintax_filename, leaked_filename, algorithm, modelling_filename,
                                 "" + insertion_cost, "" + deletion_cost, "" + substitution_cost};
-        String leaker = identify(leaked_content,spintax_content,tagDatabase,identArgs);
-        System.out.print(tagDatabase.size() + " permutations have been analyzed\nThe suspected leaker is: "); 
-        System.out.println(leaker.split(",")[1]);
+        calculateDistances(leaked_content,spintax_content,tagDatabase,res.get("logs"),identArgs);
+        System.out.println("\n" + tagDatabase.size() + " permutations have been analyzed\nThe data has been written to the file '"+modelling_filename+"'\n"); 
     }
     
     /**
@@ -253,6 +256,8 @@ public class Solid_Investigator {
      *      data itself and not the filename.
      * @param tagDatabase The tag database is a map that exists with key as tag,
      *      and value as user. This is so users can be identified based on their tags.
+     * @param showLogs If true, information logs are shown for every tag iteration.
+     *                 Not reccomended for large permutation counts. Shut off after 100000
      * @param args Args consists of several argument values to be used in some algorithmic
      *      or optional cases. They are as follows.
      *      [0] spintax_filename: used with -d, included in log metadata.
@@ -270,63 +275,72 @@ public class Solid_Investigator {
      * then the latter is chosen. If the log option exists, all outputs are stored
      * in the log file.
      */
-    public static String identify(String leak, String spintax, 
-        Map<String, String> tagDatabase, String[] args){
+    public static void calculateDistances(String leak, String spintax, 
+        Map<String, String> tagDatabase, boolean showLogs, String[] args){
         String algorithm = args[2];
         SolidSpintaxElement spintaxE;
         spintaxE = SolidSpintaxSpinner.parse(spintax);
         
+       
+        
         Map<String, String> permutations = createPermutationMap(spintaxE, tagDatabase);
-        int numPermutations = permutations.size();
+        int usedPermutations = permutations.size();
         int numSwitches = spintaxE.countSwitches();
+        BigInteger maxPermutations = spintaxE.countPermutations();
+        System.out.println("Parsed " + numSwitches + " switches constituting " + maxPermutations
+                + " permutations.\n"+ usedPermutations + " of the " + maxPermutations + 
+                " possible permutations will be analyzed for edit distance\n");
         Map<String,Double> tagToDist = new HashMap<String,Double>();
-        
-        String mostLikelyLeaker = "";
-        double minimumDistance = Double.POSITIVE_INFINITY;
-        
         
         EditDistance<Integer> edistInt = null;
         EditDistance<Double> edistDouble = null;
         EditDistance<LevenshteinResults> edistDetail = null;
 
         boolean useDetail = false;
-        boolean useDouble = false; 
+        boolean useDouble = false;
         if(algorithm == null){
             edistInt = new LevenshteinDistance();
         }
-        else if(algorithm.equals("cosine")){
-            edistDouble = new CosineDistance();
-            useDouble = true;
+        else
+        {
+            if(algorithm.equals("cosine")){
+                edistDouble = new CosineDistance();
+                useDouble = true;
+            }
+            else if(algorithm.equals("hamming")){ //TODO Figure out what to do if not same strlen
+                edistInt = new HammingDistance();
+            }
+            else if(algorithm.equals("jaccard")){
+                edistDouble = new JaccardDistance();
+                useDouble = true;
+            }
+            else if(algorithm.equals("jarowinkler")){
+                edistDouble = new JaroWinklerDistance();
+                useDouble = true;
+            }
+            else if(algorithm.equals("longestcommonsubsequence")){
+                edistInt = new LongestCommonSubsequenceDistance();
+            }
+            else if(algorithm.equals("levenshteindetaileddistance")){
+                edistDetail = new LevenshteinDetailedDistance();
+                useDetail = true;
+            }
+            else{
+                edistInt = new LevenshteinDistance();
+            }
         }
-        else if(algorithm.equals("hamming")){ //TODO Figure out what to do if not same strlen
-            edistInt = new HammingDistance();
-        }
-        else if(algorithm.equals("jaccard")){
-            edistDouble = new JaccardDistance();
-            useDouble = true;
-        }
-        else if(algorithm.equals("jarowinkler")){
-            edistDouble = new JaroWinklerDistance();
-            useDouble = true;
-        }
-        else if(algorithm.equals("longestcommonsubsequence")){
-            edistInt = new LongestCommonSubsequenceDistance();
-        }
-        else if(algorithm.equals("levenshteindetaileddistance")){
-            edistDetail = new LevenshteinDetailedDistance();
-            useDetail = true;
-        }
-        else{
-            edistInt = new LevenshteinDistance();
-        }
-           
+        
+        int iterations = 0;
+        int totalCharacters = 0;
         for(Map.Entry<String,String> entry : permutations.entrySet()){
             String docPerm = entry.getValue();
             String currTag = entry.getKey();
+            totalCharacters += docPerm.length();
             
             double currDist;
-            if(useDouble)
+            if(useDouble){
                 currDist = edistDouble.apply(leak,docPerm);
+            }
             else if(useDetail){
                 LevenshteinResults levres = edistDetail.apply(leak,docPerm);
                 currDist = (double)( (levres.getInsertCount() * Integer.parseInt(args[4])) +
@@ -334,42 +348,39 @@ public class Solid_Investigator {
                                      (levres.getSubstituteCount() * Integer.parseInt(args[6]))
                          );
             }
-            else
+            else{
                 currDist = (double)edistInt.apply(leak,docPerm);
-            
-            tagToDist.put(currTag + "," + tagDatabase.get(currTag), currDist);
-            if(mostLikelyLeaker.equals("")){
-                mostLikelyLeaker = currTag + "," + tagDatabase.get(currTag);
-                minimumDistance = currDist;
-            } else{
-                minimumDistance = tagToDist.get(mostLikelyLeaker);
-                if(minimumDistance > currDist){
-                    mostLikelyLeaker = currTag + "," + tagDatabase.get(currTag);
-                }
             }
+            if(showLogs && iterations < MAX_LOG_ITERATIONS){
+                System.out.println("[Iteration " + iterations + "] " + "User:" + tagDatabase.get(currTag) 
+                                     + ",Tag: " + currTag + " Distance: " + currDist);
+            }
+            
+            tagToDist.put(tagDatabase.get(currTag), currDist);
             /*
             System.out.println("[LOG: " + getCurrentDate() + ")]\nSuspect: " + tagDatabase.get(currTag) +
                 "\n Permutation: \"" + docPerm.replaceAll("\n","\\\\n") +
                 "\"\n Distance: " + currDist + "\n");
             */
+             iterations++;
         }
         
         if(args[3] != null){
-            String metadata = args[0] + "," + args[1] + ","  + numSwitches + "," + numPermutations + 
-            "," + "something" + "," + ((args[2] != null) ? args[2] : "Levenshtein");
+            String metadata = args[0] + "," + args[1] + ","  + numSwitches + "," + maxPermutations + 
+            "," + (double)totalCharacters / iterations + "," + ((args[2] != null) ? args[2] : "Levenshtein");
             try{
                 writeModelToFile(args[3],metadata,tagToDist);
             }
             catch(Exception e){
                 System.out.println("Model data was unable to be written to file, errmsg: " + e);
+                System.exit(1);
             }
         }
         else
         {
-            System.out.println("Model not found");
+            System.out.println("Error: Model not found, exiting...");
+            System.exit(1);
         }
-        
-        return mostLikelyLeaker;
     }
     
     
@@ -424,8 +435,9 @@ public class Solid_Investigator {
         }
         
         writer.newLine();
-        
-        for(Map.Entry<String,Double> entry  : modelTable.entrySet()){
+        ArrayList<Map.Entry<String, Double>> list = new ArrayList<>(modelTable.entrySet());
+        list.sort(Map.Entry.comparingByValue());
+        for(Map.Entry<String,Double> entry  : list){
             writer.write(entry.getKey() + ":" + entry.getValue());
             writer.newLine();
         }
