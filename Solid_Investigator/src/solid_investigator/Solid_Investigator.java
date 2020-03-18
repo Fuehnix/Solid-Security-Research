@@ -93,13 +93,13 @@ public class Solid_Investigator {
 
         ArgumentGroup information = parser.addArgumentGroup("information")
                 .description("information about this program");
-        information.addArgument("-v", "--version")
-                .action(Arguments.storeTrue())
-                .help("prints the current spintax and spinner version");
         information.addArgument("-h", "--help")
                 .action(Arguments.storeTrue())
                 .help("shows this help message");
-        
+        information.addArgument("-v", "--version")
+                .action(Arguments.storeTrue())
+                .help("prints the current spintax and spinner version");
+
         ArgumentGroup costs = parser.addArgumentGroup("costs")
                 .description("sets the cost for each difference when computing edit distance");
         costs.addArgument("-sc", "--substitution-cost")
@@ -120,9 +120,9 @@ public class Solid_Investigator {
         output.addArgument("-d", "--data")
                 .metavar("<FILE>")
                 .help("outputs the modelling data to the provided file");
-        output.addArgument("-l","--logs")
+        output.addArgument("-s","--silent")
                 .action(Arguments.storeTrue())
-                .help("outputs log information about Investigator activities, maximum 100000 logs");
+                .help("silences log information about Investigator activities");
         
         ArgumentGroup modes = parser.addArgumentGroup("modes")
                 .description("specify in which way the investigator determines the leak source.");
@@ -135,10 +135,26 @@ public class Solid_Investigator {
             res = parser.parseArgs(args);
         } catch (ArgumentParserException e) {
             parser.handleError(e);
-            System.exit(1);
+            return;
         }
         if(res == null){
             System.out.println("Args could not be parsed, Exiting...");
+        }
+        
+          if (res.get("help")) {
+                if (args.length > 1) {
+                    System.out.println("\nNOTE: --help specified; all other arguments ignored\n");
+                }
+                parser.printHelp();
+                return;
+        }
+
+        if (res.get("version")) {
+            if (args.length > 1) {
+                System.out.println("\nNOTE: --version specified; all other arguments ignored\n");
+                System.out.println("Solid Spintax Investigator Version: " + INVESTIGATOR_VERSION);
+            }
+            return;
         }
         
         int substitution_cost, insertion_cost, deletion_cost;
@@ -158,22 +174,6 @@ public class Solid_Investigator {
             deletion_cost = 1;
         }
 
-        if (res.get("help")) {
-            if (args.length > 1) {
-                System.out.println("\nNOTE: --help specified; all other arguments ignored\n");
-            }
-            parser.printHelp();
-            System.exit(0);
-        }
-
-        if (res.get("version")) {
-            if (args.length > 1) {
-                System.out.println("\nNOTE: --version specified; all other arguments ignored\n");
-                System.out.println("Solid Spintax Investigator Version: " + INVESTIGATOR_VERSION);
-            }
-            System.exit(0);
-        }
-
         if (res.get("tagdatabasefile") == null || res.get("spintaxfile") == null || res.get("leakedfile") == null){
             if(res.get("spintaxfile") == null)
                 System.out.println("Error: Spintax File Missing");
@@ -182,7 +182,7 @@ public class Solid_Investigator {
             if(res.get("tagdatabasefile") == null)
                 System.out.println("Error: Tag Database File Missing");
             System.out.println("One or more files that are required are missing, exiting...");
-            System.exit(1);
+            return;
         }
         String tag_database_filename = res.get("tagdatabasefile");
         String spintax_filename = res.get("spintaxfile");
@@ -212,14 +212,15 @@ public class Solid_Investigator {
         String algorithm = null;
         if(res.get("algorithm") != null){
             algorithm = res.get("algorithm");
-            if(!algorithms.contains(algorithm)) {
+            if(!algorithms.contains(algorithm.toLowerCase())) {
                 System.out.println("Algorithm '" + algorithm + "'does not exist, please select from the following.");
                 for(String algo : algorithms){
                     System.out.println("\t"+ algo);
                 }
                 System.out.println("\nExiting...");
-                System.exit(1);
+                return;
             }
+            System.out.println("Successfully parsed -a input, using a " + algorithm + " algorithm.");
             algorithm = algorithm.toLowerCase();
         }
         
@@ -239,13 +240,19 @@ public class Solid_Investigator {
             }
         } else{
             System.out.println("Tag database ecountered an unknown error, Exiting...");
-            System.exit(1);
+            return;
         }
-        
+        boolean showLogs = true;
+        if(res.get("silent"))
+            showLogs = false;
         String[] identArgs = {spintax_filename, leaked_filename, algorithm, modelling_filename,
                                 "" + insertion_cost, "" + deletion_cost, "" + substitution_cost};
-        calculateDistances(leaked_content,spintax_content,tagDatabase,res.get("logs"),identArgs);
-        System.out.println("\n" + tagDatabase.size() + " permutations have been analyzed\nThe data has been written to the file '"+modelling_filename+"'\n"); 
+        calculateDistances(leaked_content,spintax_content,tagDatabase,showLogs,identArgs);
+        System.out.println("\n" + tagDatabase.size() + " permutations have been analyzed");
+        if(modelling_filename != null)
+        {
+            System.out.println("\nThe data has been written to the file '"+modelling_filename+"'\n");
+        }
     }
     
     /**
@@ -283,8 +290,8 @@ public class Solid_Investigator {
         
        
         
-        Map<String, String> permutations = createPermutationMap(spintaxE, tagDatabase);
-        int usedPermutations = permutations.size();
+        //Map<String, String> permutations = createPermutationMap(spintaxE, tagDatabase);
+        int usedPermutations = tagDatabase.size();
         int numSwitches = spintaxE.countSwitches();
         BigInteger maxPermutations = spintaxE.countPermutations();
         System.out.println("Parsed " + numSwitches + " switches constituting " + maxPermutations
@@ -332,24 +339,37 @@ public class Solid_Investigator {
         
         int iterations = 0;
         int totalCharacters = 0;
-        for(Map.Entry<String,String> entry : permutations.entrySet()){
-            String docPerm = entry.getValue();
+        for(Map.Entry<String,String> entry : tagDatabase.entrySet()){
             String currTag = entry.getKey();
+            BigInteger perm = new BigInteger(currTag,36);
+            String docPerm = spintaxE.spin(perm);
             totalCharacters += docPerm.length();
             
             double currDist;
-            if(useDouble){
-                currDist = edistDouble.apply(leak,docPerm);
-            }
-            else if(useDetail){
-                LevenshteinResults levres = edistDetail.apply(leak,docPerm);
-                currDist = (double)( (levres.getInsertCount() * Integer.parseInt(args[4])) +
-                                     (levres.getDeleteCount() * Integer.parseInt(args[5])) +
-                                     (levres.getSubstituteCount() * Integer.parseInt(args[6]))
-                         );
-            }
-            else{
-                currDist = (double)edistInt.apply(leak,docPerm);
+            try{
+                if(useDouble){
+                    currDist = edistDouble.apply(leak,docPerm);
+                }
+                else if(useDetail){
+                    LevenshteinResults levres = edistDetail.apply(leak,docPerm);
+                    currDist = (double)( (levres.getInsertCount() * Integer.parseInt(args[4])) +
+                                         (levres.getDeleteCount() * Integer.parseInt(args[5])) +
+                                         (levres.getSubstituteCount() * Integer.parseInt(args[6]))
+                             );
+                }
+                else{
+                    if(algorithm != null && algorithm.equals("hamming") && leak.length() != docPerm.length()){
+                        System.out.println("Error: Hamming distance cannot have texts of differing length.\n" +
+                                "Leak Length: " + leak.length() + ", Permutation Length: " + docPerm.length());
+                        return;
+                    }
+                    currDist = (double)edistInt.apply(leak,docPerm);
+                }
+            } catch (Exception e){
+                System.out.println("Error in iteration " + iterations +". The " 
+                        + algorithm + "distance algo failed to complete due to an unexpected error");
+                System.out.println("Error Message: " + e);
+                return;
             }
             if(showLogs && iterations < MAX_LOG_ITERATIONS){
                 System.out.println("[Iteration " + iterations + "] " + "User:" + tagDatabase.get(currTag) 
@@ -373,13 +393,13 @@ public class Solid_Investigator {
             }
             catch(Exception e){
                 System.out.println("Model data was unable to be written to file, errmsg: " + e);
-                System.exit(1);
+                return;
             }
         }
         else
         {
-            System.out.println("Error: Model not found, exiting...");
-            System.exit(1);
+            System.out.println("No model file specified, data will not be written.");
+            return;
         }
     }
     
@@ -389,6 +409,7 @@ public class Solid_Investigator {
      * @param spintax The Spintax that will be used to generate all permutations
      * @param tagDatabase The database of tags that are to be permuted on.
      * @return The Map of Tag to permutation.
+     * 
      */
     public static Map<String, String> createPermutationMap(SolidSpintaxElement spintax, Map<String, String> tagDatabase){
         Map<String, String> permutations = new HashMap<String,String>();
@@ -467,6 +488,6 @@ public class Solid_Investigator {
                 + "  `/`+++ssssmMMMMMMMMN`                                                         \n"
                 + " :./++++NMMMMMMMMMMMMM.                                                         \n"
                 + "================================================================================\n\n"
-                + "Solid Spinner v" + INVESTIGATOR_VERSION + " (Solid Spintax Standard v" + SPINTAX_VERSION + ")\n");
+                + "Solid Investigator v" + INVESTIGATOR_VERSION + " (Solid Spintax Standard v" + SPINTAX_VERSION + ")\n");
     }
 }
