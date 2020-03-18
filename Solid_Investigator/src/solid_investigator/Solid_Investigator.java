@@ -52,17 +52,19 @@ import net.sourceforge.argparse4j.inf.Namespace;
  * @author Jacob Fuehne
  * @author Vivek Nair
  * @author Thomas Quig
- * @version 1.0.0
+ * @version 1.0.1
  * @since 1.0.0
  */
 public class Solid_Investigator {
-    private static StringBuilder output = new StringBuilder();
+    private static final String INVESTIGATOR_VERSION = "1.0.1";
+    public static final String SPINTAX_VERSION = "1.0.1";
 
     /**
      * Main method, runs upon program execution.
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException{
+        printHeader();
         ArrayList<String> algorithms = 
         new ArrayList<String>(Arrays.asList("cosine", "hamming", "jaccard", 
                             "jarowinkler", "levenshteindetailed",
@@ -121,7 +123,7 @@ public class Solid_Investigator {
         ArgumentGroup modes = parser.addArgumentGroup("modes")
                 .description("specify in which way the investigator determines the leak source.");
         modes.addArgument("-a", "--algorithm")
-                .metavar("<FILE>")
+                .metavar("<ALGO>")
                 .help("sets the algorithm that will be run to determine edit distance");
 
         Namespace res = null;
@@ -134,7 +136,7 @@ public class Solid_Investigator {
         if(res == null){
             System.out.println("Args could not be parsed, Exiting...");
         }
-        System.out.println(res);
+        
         int substitution_cost, insertion_cost, deletion_cost;
         if(res.get("substitution-cost") != null){
             substitution_cost = res.get("substitution_cost");
@@ -163,6 +165,7 @@ public class Solid_Investigator {
         if (res.get("version")) {
             if (args.length > 1) {
                 System.out.println("\nNOTE: --version specified; all other arguments ignored\n");
+                System.out.println("Solid Spintax Investigator Version: " + INVESTIGATOR_VERSION);
             }
             System.exit(0);
         }
@@ -224,7 +227,6 @@ public class Solid_Investigator {
         }
         
         Map<String, String> tagDatabase = new HashMap<String,String>();
-        System.out.println(tag_database_content);
         if(tag_database_content != null){
             String[] lines = tag_database_content.split("\n");
             for(String line: lines){
@@ -238,9 +240,8 @@ public class Solid_Investigator {
         
         String[] identArgs = {spintax_filename, leaked_filename, algorithm, modelling_filename,
                                 "" + insertion_cost, "" + deletion_cost, "" + substitution_cost};
-        System.out.println("ModFileName:" + modelling_filename);
         String leaker = identify(leaked_content,spintax_content,tagDatabase,identArgs);
-        System.out.print("The Leaker is: "); 
+        System.out.print(tagDatabase.size() + " permutations have been analyzed\nThe suspected leaker is: "); 
         System.out.println(leaker.split(",")[1]);
     }
     
@@ -252,14 +253,25 @@ public class Solid_Investigator {
      *      data itself and not the filename.
      * @param tagDatabase The tag database is a map that exists with key as tag,
      *      and value as user. This is so users can be identified based on their tags.
-     * @param args
+     * @param args Args consists of several argument values to be used in some algorithmic
+     *      or optional cases. They are as follows.
+     *      [0] spintax_filename: used with -d, included in log metadata.
+     *      [1] leaked_filename: used with -d, included in log metadata.
+     *      [2] algorithm: determines the algorithm used in distance calculation.
+     *                      the default is Levenshtein distance. Additionally, this sets
+     *                      the type of distance. For the purposes of logging however, all
+     *                      distances are in doubles. (Important for later type conformity)
+     *      [3] modelling_filename: the name of the file that the model is updated into.
+     *      [4-6] insertion/deletion/substitution cost. Used with LevenshteinDetailedDistance
+     *              determines the cost for each individual distance factor. By default these
+     *              are set to 1 and LevenshteinDetailedDistance will behave as a Levenshtein
+     *              distance.
      * @return The name of the primary suspect of the leaks, if two are equal, 
      * then the latter is chosen. If the log option exists, all outputs are stored
      * in the log file.
      */
     public static String identify(String leak, String spintax, 
         Map<String, String> tagDatabase, String[] args){
-        System.out.println("The leak text is \n\"" + leak + "\"");
         String algorithm = args[2];
         SolidSpintaxElement spintaxE;
         spintaxE = SolidSpintaxSpinner.parse(spintax);
@@ -335,9 +347,11 @@ public class Solid_Investigator {
                     mostLikelyLeaker = currTag + "," + tagDatabase.get(currTag);
                 }
             }
+            /*
             System.out.println("[LOG: " + getCurrentDate() + ")]\nSuspect: " + tagDatabase.get(currTag) +
-                    "\n Permutation: \"" + docPerm.replaceAll("\n","\\\\n") +
-                    "\"\n Distance: " + currDist + "\n");
+                "\n Permutation: \"" + docPerm.replaceAll("\n","\\\\n") +
+                "\"\n Distance: " + currDist + "\n");
+            */
         }
         
         if(args[3] != null){
@@ -358,6 +372,13 @@ public class Solid_Investigator {
         return mostLikelyLeaker;
     }
     
+    
+    /**
+     * Creates a permutation map of all the tags that exist in the tag database.
+     * @param spintax The Spintax that will be used to generate all permutations
+     * @param tagDatabase The database of tags that are to be permuted on.
+     * @return The Map of Tag to permutation.
+     */
     public static Map<String, String> createPermutationMap(SolidSpintaxElement spintax, Map<String, String> tagDatabase){
         Map<String, String> permutations = new HashMap<String,String>();
         for (Map.Entry<String,String> entry : tagDatabase.entrySet()){
@@ -369,11 +390,24 @@ public class Solid_Investigator {
         return permutations;
     }
     
+    
+    /**
+     * Read the entirety of the file into a string.
+     * @param fileName the name of the file to be read as a string.
+     * @return  The data content as a string.
+     * @throws Exception File not found and IOException.
+     */
     private static String readFileAsString(String fileName) throws Exception {
         String data = new String(Files.readAllBytes(Paths.get(fileName)));
         return data;
     }
-    
+    /**
+     * Writes the model (including metadata) to the file at filename.
+     * @param filename The filename where the model will be stored.
+     * @param metadata The metadata associated with the model file.
+     * @param modelTable The model table, username and tag -> distance.
+     * @throws Exception IOException in case IO fails for some reason.
+     */
     private static void writeModelToFile(String filename, String metadata,
         Map<String,Double> modelTable) throws Exception {
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
@@ -398,10 +432,29 @@ public class Solid_Investigator {
         writer.close();
     }
     
+    
+    /**
+     * Gets the current date and time in proper format.
+     * @return The current time.
+     */
     private static String getCurrentDate(){
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	Date date = new Date();
         return dateFormat.format(date);
     }
-    
+    private static void printHeader() {
+        System.out.print("\n"
+                + "       /MMM/ yMMm .MMMs                                                         \n"
+                + "       /MMMmdNMMMddMMMs                                                         \n"
+                + "+ ++++++ssssdMMMMMMMMMo    -\\\\\\\\\\\\\\\\\\   `:///////-  `/-         -/` -/////////. \n"
+                + " `/`++++smNNNNNNMMMMy-    oMy          /NhoooooooNh .My         sM: sMsoooooosMs\n"
+                + "           syyyyMMM.      +My++++++oo. hM.       yM .My         sM: sM-       NM\n"
+                + "    `/.++++sssssMMM`               sMy hM.       yM .My         sM: sM-       NM\n"
+                + "     `/.+++mNNNNMMM`      +My++++++yMs /NhoooooosNh .Md+++++++: sM: sMsooooooyMo\n"
+                + "         :syyyyhMMMh/      -////////-   `:///////.  `/////////- -/` -////////:` \n"
+                + "  `/`+++ssssmMMMMMMMMN`                                                         \n"
+                + " :./++++NMMMMMMMMMMMMM.                                                         \n"
+                + "================================================================================\n\n"
+                + "Solid Spinner v" + INVESTIGATOR_VERSION + " (Solid Spintax Standard v" + SPINTAX_VERSION + ")\n");
+    }
 }
