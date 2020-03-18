@@ -35,14 +35,31 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- *
- * @author jacob
+ * <i> Solid Spintax Investigator</i>
+ * <p>
+ * Command-line utility designed to trace Solid Spintax document Leaks to their source.
+ * <p>
+ * For command-line arguments, run with --help.
+ * <p>
+ * For additional documentation, check the
+ * <a href="https://github.com/SolidSecurity/Solid-Spintax-Spinner">GitHub</a>
+ * repository.
+ * <p>
+ Uses the
+ * <a href="https://github.com/SolidSecurity/Solid-Spintax-Specification">Solid Spintax</a>
+ * standard from <i>Solid Security</i>.
+ * @author Solid Security
+ * @author Jacob Fuehne
+ * @author Vivek Nair
+ * @author Thomas Quig
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class Solid_Investigator {
     private static StringBuilder output = new StringBuilder();
 
     /**
-     * 
+     * Main method, runs upon program execution.
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException{
@@ -100,9 +117,6 @@ public class Solid_Investigator {
         output.addArgument("-d", "--data")
                 .metavar("<FILE>")
                 .help("outputs the modelling data to the provided file");
-        output.addArgument("-l", "--log")
-                .metavar("<FILE>")
-                .help("uses the provided log file");
         
         ArgumentGroup modes = parser.addArgumentGroup("modes")
                 .description("specify in which way the investigator determines the leak source.");
@@ -208,12 +222,7 @@ public class Solid_Investigator {
         if (res.get("data") != null) {
             modelling_filename = res.get("data");
         }
-
-        String log_filename = null;
-        if (res.get("log") != null){
-            log_filename = res.get("log");
-        }
-
+        
         Map<String, String> tagDatabase = new HashMap<String,String>();
         System.out.println(tag_database_content);
         if(tag_database_content != null){
@@ -235,6 +244,19 @@ public class Solid_Investigator {
         System.out.println(leaker.split(",")[1]);
     }
     
+    /**
+     * 
+     * @param leak The leak text that will be investigated. This is the leak text
+     *      and not the leak filename, as the text is processed in main.
+     * @param spintax The spintaxt text that will be investigated. This is also the
+     *      data itself and not the filename.
+     * @param tagDatabase The tag database is a map that exists with key as tag,
+     *      and value as user. This is so users can be identified based on their tags.
+     * @param args
+     * @return The name of the primary suspect of the leaks, if two are equal, 
+     * then the latter is chosen. If the log option exists, all outputs are stored
+     * in the log file.
+     */
     public static String identify(String leak, String spintax, 
         Map<String, String> tagDatabase, String[] args){
         System.out.println("The leak text is \n\"" + leak + "\"");
