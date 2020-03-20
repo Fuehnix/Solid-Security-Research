@@ -34,8 +34,8 @@ import org.apache.commons.math.MathException;
 // * @since 1.0.0
 // */
 public class SolidModeller {
-    private static final String INVESTIGATOR_VERSION = "1.0.1";
-    public static final String SPINTAX_VERSION = "1.0.1";
+    private static final String MODELLER_VERSION = "1.0.0";
+    public static final String SPINTAX_VERSION = "1.0.0";
     public static final int MAX_TAG_DATABASE_SIZE = 100000;
     public static final int MAX_LOG_SIZE = 1000;
     public static final int CHARACTER_LIMIT = 50;
@@ -104,12 +104,24 @@ public class SolidModeller {
         if (res.get("version")) {
             if (args.length > 1) {
                 System.out.println("\nNOTE: --version specified; all other arguments ignored\n");
-                System.out.println("Solid Spintax Investigator Version: " + INVESTIGATOR_VERSION);
+                System.out.println("Solid Spintax Modeller Version: " + MODELLER_VERSION);
             }
             return;
         }
-        String leakDataFileName = "basic-leaked.txt";
-        String outputModelFileName = "testModel.out";
+        String leakDataFileName = res.get("leakedfile");
+        String outputModelFileName = res.get("outputModel");
+        try{
+            leakDataFileName = readFileAsString(leakDataFileName);
+        } catch (Exception e){
+            System.out.println("ERROR: The leaked file could not be read");
+            return;
+        }
+        try{
+            leakDataFileName = readFileAsString(outputModelFileName);
+        } catch (Exception e){
+            System.out.println("ERROR: The output model file could not be read");
+            return;
+        }
         String leakString = "";
         String outputModelString = "";
         try {
