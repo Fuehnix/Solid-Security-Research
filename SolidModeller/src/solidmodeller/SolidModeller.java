@@ -43,7 +43,6 @@ public class SolidModeller {
     public static void main(String[] args){
         printHeader();
         //handles args last
-        SolidModeller model = new SolidModeller("basic-leaked.txt","testModel.out");
         String leakDataFileName = "basic-leaked.txt";
         String outputModelFileName = "testModel.out";
         String leakString = "";
@@ -68,14 +67,10 @@ public class SolidModeller {
         SolidModel testModel2 = new SolidModel(testRecord);
         testModel2.add(testModel);
         try {
-            System.out.println(testModel2.printStatistics());
+            System.out.println(testModel.printStatistics());
         } catch (MathException ex) {
-            Logger.getLogger(SolidModeller.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
-    }
-    
-    public SolidModeller(String leakDataFileName, String outputModelFileName){
-
     }
     
     /**

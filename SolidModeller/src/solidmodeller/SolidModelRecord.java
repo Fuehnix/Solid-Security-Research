@@ -50,12 +50,9 @@ public class SolidModelRecord {
         algorithm = lines[5];
         date = lines[6];
         for(int i = 8; i < lines.length; i++){
-//            System.out.println(lines[i]);
             String[] values = lines[i].split(":");
             double dist = Double.parseDouble(values[1]);
             String name = values[0];
-//            System.out.println(name);
-//            System.out.println(dist);
             tMap.put(name,dist);
         }
         distances = new ArrayList<>();

@@ -21,8 +21,8 @@ import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
  */
 public class SolidModel {
     private ArrayList<SolidModelRecord> records;
-    private static double totalDistance;
-    private int entries;
+    private static double totalDistance = 0;
+    private int entries = 0;
     private TreeMap<String,Double> tMap = new TreeMap<String,Double>();
     
     public SolidModel(){
@@ -42,6 +42,7 @@ public class SolidModel {
         for(int i = 0; i < records.size(); i++){
             add(records.get(i));
         }
+        entries = tMap.size();
     }
     
     /*
@@ -51,6 +52,7 @@ public class SolidModel {
         totalDistance += record.getDistanceTotal();
         Map<String, Double> otherMap = record.getMap();
         otherMap.forEach((k, v) -> tMap.merge(k, v, (a, b) -> a + b));
+        entries = tMap.size();
     }
     
     /*
@@ -59,12 +61,9 @@ public class SolidModel {
     public void add(SolidModel records){
         Map<String, Double> otherMap = records.getMap();
         totalDistance += records.getTotalDistance();
-        entries += otherMap.size();
         otherMap.forEach((k, v) -> tMap.merge(k, v, (a, b) -> a + b));
-//        System.out.println(tMap);
-//        for (Map.Entry<String,Double> entry : tMap.entrySet()){
-//            System.out.println(entry.toString());
-//        }
+        entries = tMap.size();
+        System.out.println("entries: " + entries);
     }
     
     public static double calculatePValue(double mean, double variance, double value) throws MathException{
@@ -76,24 +75,29 @@ public class SolidModel {
         return pValue;
     }
     
-    public static double calculateMean(ArrayList<Double> data){
-        double total = 0;
-        for(int i = 0; i < data.size(); i++){
-            total += data.get(i);
-        }
-        double size = data.size();
-        double mean = total/size;
-        return mean;
-    }
-    
-    public static double calculateMean(double total, double size){
-        double mean = total/size;
-        return mean;
-    }
+//    public static double calculateMean(ArrayList<Double> data){
+//        double total = 0;
+//        for(int i = 0; i < data.size(); i++){
+//            total += data.get(i);
+//        }
+//        double size = data.size();
+//        double mean = total/size;
+//        return mean;
+//    }
+//    
+//    public static double calculateMean(double total, double size){
+//        double mean = total/size;
+//        return mean;
+//    }
     
     public static double calculateMeanOther(double total, double size, double entryDist){
+        System.out.println(total);
         total = total - entryDist;
+        System.out.println(total);
+        System.out.println(entryDist);
+        System.out.println(size);
         size = size - 1;
+        System.out.println(size);
         double mean = total/size;
         return mean;
     }
@@ -128,12 +132,13 @@ public class SolidModel {
             double std = 1;
             double pvalue = 0;
             mean = calculateMeanOther(totalDistance,entries,dist);
+            System.out.println(totalDistance);
             ArrayList<Double> excluding = values;
             excluding.remove(dist);
             std = calculateSTD(excluding,mean);
             pvalue = calculatePValue(mean,std,dist);
-            String pvalueS = Double.toString(pvalue);
-            System.out.println(dist + "    " +mean+ "    " + std +"   " + pvalue);
+            String pvalueS = String.valueOf(pvalue);
+            System.out.println(dist + "    " +mean+ "    " + std +"   " + pvalueS);
             pMap.put(name, pvalue);
         }
         return pMap.toString();
