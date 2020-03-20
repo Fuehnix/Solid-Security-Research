@@ -1,0 +1,16 @@
+# Solid Spintax Investigator
+# spintax: basic-spintax.txt
+# document: basic-leaked.txt
+# switches: 2
+# permutations: 12
+# characters: 90.25
+# algorithm: jaccard
+# date: 2020/03/19 22:50:02
+Jezebel:0.1785714285714286
+John:0.1785714285714286
+Jill:0.18518518518518523
+Joe:0.18518518518518523
+Jacob:0.2222222222222222
+Josh:0.2222222222222222
+Jim:0.2222222222222222
+Jack:0.2222222222222222

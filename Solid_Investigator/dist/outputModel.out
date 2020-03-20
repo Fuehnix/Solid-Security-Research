@@ -1,0 +1,16 @@
+# Solid Spintax Investigator
+# spintax: basic-spintax.txt
+# document: basic-leaked.txt
+# switches: 2
+# permutations: 12
+# characters: 90.25
+# algorithm: levenshteindetailed
+# date: 2020/03/19 23:50:01
+Jim:880.0
+Jack:880.0
+Jacob:900.0
+John:900.0
+Josh:900.0
+Joe:910.0
+Jezebel:920.0
+Jill:930.0
