@@ -17,6 +17,8 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentGroup;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 import org.apache.commons.math.MathException;
 
 // * <i> Solid Modeller</i>
@@ -80,7 +82,32 @@ public class SolidModeller {
         values.addArgument("-t", "--threshold ")
                 .metavar("<double>")
                 .help("p-val for statistical significance");
+        
+        Namespace res = null;
+        try{
+            res = parser.parseArgs(args);
+        } catch (ArgumentParserException e) {
+            parser.handleError(e);
+            return;
+        }
+        if(res == null){
+            System.out.println("Args could not be parsed, Exiting...");
+        }
+          if (res.get("help")) {
+                if (args.length > 1) {
+                    System.out.println("\nNOTE: --help specified; all other arguments ignored\n");
+                }
+                parser.printHelp();
+                return;
+        }
 
+        if (res.get("version")) {
+            if (args.length > 1) {
+                System.out.println("\nNOTE: --version specified; all other arguments ignored\n");
+                System.out.println("Solid Spintax Investigator Version: " + INVESTIGATOR_VERSION);
+            }
+            return;
+        }
         String leakDataFileName = "basic-leaked.txt";
         String outputModelFileName = "testModel.out";
         String leakString = "";
