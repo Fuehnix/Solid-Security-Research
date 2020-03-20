@@ -110,18 +110,8 @@ public class SolidModeller {
         }
         String leakDataFileName = res.get("leakedfile");
         String outputModelFileName = res.get("outputModel");
-        try{
-            leakDataFileName = readFileAsString(leakDataFileName);
-        } catch (Exception e){
-            System.out.println("ERROR: The leaked file could not be read");
-            return;
-        }
-        try{
-            leakDataFileName = readFileAsString(outputModelFileName);
-        } catch (Exception e){
-            System.out.println("ERROR: The output model file could not be read");
-            return;
-        }
+        leakDataFileName = "basic-leaked.txt";
+        outputModelFileName = "testModel.out";
         String leakString = "";
         String outputModelString = "";
         try {
@@ -144,7 +134,7 @@ public class SolidModeller {
         SolidModel testModel2 = new SolidModel(testRecord);
         testModel2.add(testModel);
         try {;
-            System.out.println(testModel.printStatistics());
+            System.out.println(testModel2.printStatistics());
         } catch (MathException ex) {
             return;
         }

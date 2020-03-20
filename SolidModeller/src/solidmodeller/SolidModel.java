@@ -66,12 +66,10 @@ public class SolidModel {
         System.out.println("entries: " + entries);
     }
     
-    public static double calculatePValue(double mean, double variance, double value) throws MathException{
-        double pValue = 0;
-        NormalDistribution d;
-        System.out.println(mean + " and var "   + variance);
-        d = new NormalDistributionImpl(mean, variance);
-        System.out.println("P value is     " + d.inverseCumulativeProbability(value));
+    public static double calculatePValue(double mean, double std, double value) throws MathException{
+        double variance = Math.pow(std,2);
+        double pValue = (1/(Math.pow((2*Math.PI),1/2)*std))*Math.exp((Math.pow(value-mean,2))/(2*variance));
+        System.out.println(pValue);
         return pValue;
     }
     
@@ -127,19 +125,19 @@ public class SolidModel {
         for (Map.Entry<String,Double> entry : tMap.entrySet()){
             System.out.println(entry.toString());
             String name = entry.getKey();
-//            double dist = entry.getValue();
-//            double mean = 0;
-//            double std = 1;
-//            double pvalue = 0;
-//            mean = calculateMeanOther(totalDistance,entries,dist);
-//            System.out.println(totalDistance);
-//            ArrayList<Double> excluding = values;
-//            excluding.remove(dist);
-//            std = calculateSTD(excluding,mean);
-//            pvalue = calculatePValue(mean,std,dist);
-//            String pvalueS = String.valueOf(pvalue);
-//            System.out.println(dist + "    " +mean+ "    " + std +"   " + pvalueS);
-//            pMap.put(name, pvalue);
+            double dist = entry.getValue();
+            double mean = 0;
+            double std = 1;
+            double pvalue = 0;
+            mean = calculateMeanOther(totalDistance,entries,dist);
+            System.out.println(totalDistance);
+            ArrayList<Double> excluding = values;
+            excluding.remove(dist);
+            std = calculateSTD(excluding,mean);
+            pvalue = calculatePValue(mean,std,dist);
+            String pvalueS = String.valueOf(pvalue);
+            System.out.println(dist + "    " +mean+ "    " + std +"   " + pvalueS);
+            pMap.put(name, pvalue);
         }
         return pMap.toString();
     }
