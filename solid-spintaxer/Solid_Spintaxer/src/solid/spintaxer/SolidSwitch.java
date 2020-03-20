@@ -26,15 +26,15 @@ public class SolidSwitch {
         children.add(child);
     }
     
-    public String spin(BigInteger tag){
+    public String spin(int tag){
         int length = children.size();
         //absolute int range
         for(int i = 0; i < children.size(); i++){
-            BigInteger curPermutations = children.get(i).permutations();
-            if(tag.compareTo(curPermutations) == -1){
+            int curPermutations = children.get(i).permutations();
+            if(tag < curPermutations){
                 return children.get(i).spin(tag);
             } else {
-                tag = tag.subtract(curPermutations);
+                tag = tag - (curPermutations);
             }
         }
         System.out.println("Error: tag not reached");
@@ -59,10 +59,10 @@ public class SolidSwitch {
         return children;
     }
     
-    public BigInteger permutations(){
-        BigInteger permutations = BigInteger.ZERO;
+    public int permutations(){
+        int permutations = 0;
         for (SolidSwitch s : children) {
-            permutations = permutations.add(s.permutations());
+            permutations = permutations + (s.permutations());
         }
         return permutations;
     }

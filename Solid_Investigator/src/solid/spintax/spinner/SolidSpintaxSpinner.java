@@ -12,6 +12,9 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.math.BigInteger; 
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import solid.spintax.spinner.SolidSpintax.*;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -19,6 +22,8 @@ import net.sourceforge.argparse4j.inf.ArgumentGroup;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import solid.spintax.exceptions.IncompatibleArgsException;
+import solid.spintax.exceptions.InvalidBracesSpintaxException;
 
 /**
  * <i>Solid Spintax Spinner</i>
@@ -77,7 +82,7 @@ public class SolidSpintaxSpinner {
 
         ArgumentGroup restrictions = parser.addArgumentGroup("restrictions")
                 .description("add restrictions that the spinner must follow");
-        restrictions.addArgument("-u", "--unique")
+        restrictions.addArgument("-u","--unique")
                 .action(Arguments.storeTrue())
                 .help("require all output documents to be unique");
 
@@ -95,7 +100,7 @@ public class SolidSpintaxSpinner {
                 .description("specify where output files should be stored");
         output.addArgument("-n", "--count")
                 .metavar("<#>")
-                .type(BigInteger.class)
+                .type(Integer.class)
                 .setDefault(1)
                 .help("specifies the number of files to be generated");
         output.addArgument("-y", "--yes")
@@ -122,7 +127,7 @@ public class SolidSpintaxSpinner {
 
         if (args.length == 0) {
             parser.printHelp();
-            System.exit(0);
+//            System.exit(0);
             return;
         }
 
@@ -131,7 +136,7 @@ public class SolidSpintaxSpinner {
             res = parser.parseArgs(args);
         } catch (ArgumentParserException e) {
             parser.handleError(e);
-            System.exit(1);
+//            System.exit(1);
             return;
         }
         
@@ -139,63 +144,101 @@ public class SolidSpintaxSpinner {
 
         if (res.get("help")) {
             if (args.length > 1) {
-                System.out.println("\nNOTE: --help specified; all other arguments ignored\n");
+                System.out.print("\nNOTE: --help specified; all other arguments ignored\n\n");
             }
             parser.printHelp();
-            System.exit(0);
+//            System.exit(0);
+            return;
         }
 
         if (res.get("version")) {
             if (args.length > 1) {
-                System.out.println("\nNOTE: --version specified; all other arguments ignored\n");
+                System.out.print("\nNOTE: --version specified; all other arguments ignored\n\n");
             }
-            System.exit(0);
+//            System.exit(0);
+            return;
         }
 
         if (res.get("info")) {
             valid = true;
             String[] incompatible = {"random", "sequential", "all", "unique", "permutation", "tag", "out", "log"};
-            handleIncompatibles(res, incompatible, "info");
+            try{
+                handleIncompatibles(res, incompatible, "info");
+            }catch(Exception e){
+                System.out.print(e);
+                return;
+            }
         }
 
         if (res.get("random")) {
             valid = true;
             String[] incompatible = {"sequential", "all", "permutation", "tag"};
+            try{
             handleIncompatibles(res, incompatible, "random");
+            }catch(Exception e){
+                System.out.print(e);
+                return;
+            }
         }
 
         if (res.get("sequential")) {
             valid = true;
             String[] incompatible = {"random"};
-            handleIncompatibles(res, incompatible, "sequential");
+            try{
+                handleIncompatibles(res, incompatible, "sequential");
+            }catch(Exception e){
+                System.out.print(e);
+                return;
+            }
         }
 
-        if ((int) res.get("count") <= 0) {
-            System.out.println("ERROR: count must be greater than 0");
-            System.exit(1);
+        if ((int)res.get("count") <= 0) {
+            System.out.print("ERROR: count must be greater than 0\n");
+            //System.exit(1);
+            return;
         }
 
         if (res.get("permutation") != null) {
             valid = true;
             String[] incompatible = {"tag", "random", "all"};
-            handleIncompatibles(res, incompatible, "permutation");
+            try{
+                handleIncompatibles(res, incompatible, "permutation");
+            }catch(Exception e){
+                System.out.print(e);
+                return;
+            }
         }
 
         if (res.get("tag") != null) {
             valid = true;
             String[] incompatible = {"permutation", "random", "all"};
-            handleIncompatibles(res, incompatible, "tag");
+            try{
+                handleIncompatibles(res, incompatible, "tag");
+            }catch(Exception e){
+                System.out.print(e);
+                return;
+            }
         }
 
         if (res.get("all")) {
             valid = true;
             String[] incompatible = {"random", "permutation", "tag"};
-            handleIncompatibles(res, incompatible, "all");
+            try{
+                handleIncompatibles(res, incompatible, "all");
+            }catch(Exception e){
+                System.out.print(e);
+                return;
+            }
         }
 
         if (res.get("unique") != null) {
-            String[] incompatible = {"sequential"};
-            handleIncompatibles(res, incompatible, "unique");
+            String[] incompatible = {};
+            try{
+                handleIncompatibles(res, incompatible, "unique");
+            }catch(Exception e){
+                System.out.print(e);
+                return;
+            }
         }
 
         if (res.get("log") != null) {
@@ -203,46 +246,53 @@ public class SolidSpintaxSpinner {
         }
         
         if(!valid) {
-            System.out.println("ERROR: No operation provided. One of random, "
+            System.out.print("ERROR: No operation provided. One of random, "
                     + "sequential, all, permutation, tag, info, version, or help "
-                    + "is required.");
-            System.exit(1);
+                    + "is required.\n");
+//            System.exit(1);
+            return;
         }
 
-        System.out.print("\n");
-
         if (res.get("file") == null) {
-            System.out.println("\nERROR: Please specify an input file.");
-            System.exit(1);
+            System.out.print("\nERROR: Please specify an input file.\n");
+//            System.exit(1);
+            return;
         }
 
         String fileInput = res.get("file");
-        System.out.println("\nLoading input file (" + fileInput + ")...");
+        System.out.print("\nLoading input file (" + fileInput + ")...\n");
         String input;
         try {
             input = readFileAsString(fileInput);
         } catch (Exception e) {
-            System.out.println("\nERROR: Unable to load specified input file.");
-            System.exit(1);
+            System.out.print("\nERROR: Unable to load specified input file.\n");
             return;
         }
-        System.out.println("Loaded " + input.length() + " characters.\n");
+        System.out.print("Loaded " + input.length() + " characters.\n\n");
 
-        System.out.println("Parsing input file...");
-        SolidSpintaxElement spintax = parse(input);
+        System.out.print("Parsing input file...\n");
+        SolidSpintaxElement spintax;
+        
+        try {
+            spintax = parse(input);
+        } catch (Exception e) {
+            System.out.print(e);
+            return;
+        }
+        
         BigInteger permutations = spintax.countPermutations();
         int switches = spintax.countSwitches();
-        System.out.println("Parsed " + switches + " switches constituting " + permutations + " permutations.\n");
+        System.out.print("Parsed " + switches + " switches constituting " + permutations + " permutations.\n\n");
         BigInteger min_perm = BigInteger.ZERO;
         BigInteger max_perm = permutations.subtract(BigInteger.ONE);
 
         if (res.get("info")) {
-            System.out.println("Information about provided spintax file:");
-            System.out.println("\tNumber of Switches: " + switches);
-            System.out.println("\tNumber of Permutations: " + permutations);
-            System.out.println("\tValid Permutations: [" + min_perm + ", " + max_perm + "]");
-            System.out.println("\tValid Tags: [" + permToTag(min_perm) + ", " + permToTag(max_perm) + "]");
-            System.exit(0);
+            System.out.print("Information about provided spintax file:\n");
+            System.out.print("\tNumber of Switches: " + switches + "\n");
+            System.out.print("\tNumber of Permutations: " + permutations);
+            System.out.print("\tValid Permutations: [" + min_perm + ", " + max_perm + "]\n"+ "\n");
+            System.out.print("\tValid Tags: [" + permToTag(min_perm) + ", " + permToTag(max_perm) + "]\n"+ "\n");
+            return;
         }
 
         boolean sequential = res.get("sequential");
@@ -254,18 +304,27 @@ public class SolidSpintaxSpinner {
             count = permutations;
             sequential = true;
         }
-
+        
+        if (res.get("unique")) {
+            if (count.compareTo(permutations) > 0){
+                System.out.print("ERROR: can't generate " + count + " unique permutations; only " + permutations + " possible permutations exist\n");
+//                System.exit(1);
+                return;
+            }
+        }
+        
         if ((count.compareTo(FILE_WARNING_NUM) >= 0) && ((boolean) res.get("yes")) == false) {
             Scanner in = new Scanner(System.in);
             boolean validAnswer = false;
             while (!validAnswer) {
-                System.out.println("WARNING: this will create " + count + " output files!");
+                System.out.print("WARNING: this will create " + count + " output files!\n");
                 System.out.print("Do you wish to continue? (y/n): ");
                 String answer = in.nextLine().toLowerCase();
                 switch (answer) {
                     case "n":
                     case "no":
-                        System.exit(0);
+//                        System.exit(0);
+                        return;
                     case "y":
                     case "yes":
                         validAnswer = true;
@@ -275,13 +334,14 @@ public class SolidSpintaxSpinner {
                         break;
                 }
             }
-            System.out.println("\n(Note: use -y to accept automatically.)");
+            System.out.print("\n(Note: use -y to accept automatically.)\n");
         }
 
         if (count.compareTo(FILE_REJECT_NUM) > 0) {
-            System.out.println("Error: this would create " + count + " output files!");
-            System.out.println("Generating more than " + FILE_REJECT_NUM + " files is not supported.");
-            System.exit(1);
+            System.out.print("Error: this would create " + count + " output files!\n");
+            System.out.print("Generating more than " + FILE_REJECT_NUM + " files is not supported.\n");
+//            System.exit(1);
+            return;
         }
 
         BigInteger psize = BigInteger.valueOf(count.subtract(BigInteger.ONE).toString().length());
@@ -289,14 +349,16 @@ public class SolidSpintaxSpinner {
         if (res.get("permutation") != null) {
             BigInteger perm = res.get("permutation");
             if ((perm.compareTo(max_perm) > 0) || (perm.compareTo(min_perm) < 0)) {
-                System.out.println("ERROR: specified permutation is outside the range of possible permutations");
-                System.exit(1);
+                System.out.print("ERROR: specified permutation is outside the range of possible permutations\n");
+//                System.exit(1);
+                return;
             }
 
             if ((boolean) res.get("sequential") == false) {
                 if (!count.equals(BigInteger.ONE)) {
-                    System.out.println("ERROR: can't set --permutation and --count without --sequential");
-                    System.exit(1);
+                    System.out.print("ERROR: can't set --permutation and --count without --sequential\n");
+//                    System.exit(1);
+                      return;
                 }
                 sequential = true;
             }
@@ -305,13 +367,14 @@ public class SolidSpintaxSpinner {
         if (res.get("tag") != null) {
             BigInteger perm = tagToPerm(res.get("tag"));
             if((perm.compareTo(max_perm) > 0)|| (perm.compareTo(min_perm) < 0)) {
-                System.out.println("ERROR: specified tag is outside the range of possible tags");
-                System.exit(1);
+                System.out.print("ERROR: specified tag is outside the range of possible tags\n");
+//                System.exit(1);
+                return;
             }
 
             if ((boolean) res.get("sequential") == false) {
                 if (!count.equals(BigInteger.ONE)) {
-                    System.out.println("ERROR: can't set --tag and --count without --sequential");
+                    System.out.print("ERROR: can't set --tag and --count without --sequential\n");
                     System.exit(1);
                 }
                 sequential = true;
@@ -325,17 +388,10 @@ public class SolidSpintaxSpinner {
             suffix = fileInput + ".out";
         }
 
-        if (res.get("unique")) {
-            if (count.compareTo(permutations) > 0){
-                System.out.println("ERROR: can't generate " + count + " unique permutations; only " + permutations + " possible permutations exist");
-                System.exit(1);
-            }
-        }
-
         if (res.get("random")) {
             Random rand = new Random();
             if (res.get("unique")) {
-                System.out.println("Generating " + count + " random unique permutations...");
+                System.out.print("Generating " + count + " random unique permutations...\n");
 
                 Set<BigInteger> set = new LinkedHashSet<>();
                 while(BigInteger.valueOf(set.size()).compareTo(count) < 0){
@@ -347,7 +403,7 @@ public class SolidSpintaxSpinner {
                 }
 
                 int i = 0;
-                System.out.println("\nOUTPUT_FILE:TAG --");
+                System.out.print("\nOUTPUT_FILE:TAG --\n");
                 for (BigInteger permutation : set) {
                     String document = spintax.spin(permutation);
                     String tag = permToTag(permutation);
@@ -358,16 +414,17 @@ public class SolidSpintaxSpinner {
                         fw.write(document);
                         fw.close();
                     } catch (IOException e) {
-                        System.out.println("\nERROR: Unable to write output file.");
-                        System.exit(1);
+                        System.out.print("\nERROR: Unable to write output file.\n");
+//                        System.exit(1);
+                        return;
                     }
 
                     output(fileName + ":" + tag);
                     i++;
                 }
             } else {
-                System.out.println("Generating " + count + " random permutations...");
-                System.out.println("\nOUTPUT_FILE:TAG --");
+                System.out.print("Generating " + count + " random permutations...\n");
+                System.out.print("\nOUTPUT_FILE:TAG --\n");
                 for (BigInteger i = BigInteger.ZERO; i.compareTo(count) < 0; i = i.add(BigInteger.ONE)) {
                     BigInteger randomNumber;
                     do {
@@ -375,7 +432,7 @@ public class SolidSpintaxSpinner {
                     } while (randomNumber.compareTo(permutations) >= 0);
                     BigInteger permutation = randomNumber;
                     String document = spintax.spin(permutation);
-
+//                    System.out.println(document);
                     String tag = permToTag(permutation);
                     String fileName = String.format("%0" + psize + "d", i) + suffix;
 
@@ -384,8 +441,9 @@ public class SolidSpintaxSpinner {
                         fw.write(document);
                         fw.close();
                     } catch (IOException e) {
-                        System.out.println("\nERROR: Unable to write output file.");
-                        System.exit(1);
+                        System.out.print("\nERROR: Unable to write output file.\n");
+//                        System.exit(1);
+                        return;
                     }
 
                     output(fileName + ":" + tag);
@@ -393,7 +451,7 @@ public class SolidSpintaxSpinner {
             }
         } else if (sequential) {
             BigInteger out = BigInteger.ZERO;
-
+            
             BigInteger perm = BigInteger.ZERO;
             if (res.get("permutation") != null) {
                 perm = res.get("permutation");
@@ -401,11 +459,17 @@ public class SolidSpintaxSpinner {
             if (res.get("tag") != null) {
                 perm = tagToPerm(res.get("tag"));
             }
+            if (res.get("unique") != null){
+                if (count.compareTo(permutations) > 0){
+                    System.out.print("ERROR: can't generate " + count + " unique permutations; only " + permutations + " possible permutations exist\n");
+    //                System.exit(1);
+                    return;
+                }
+            }
 
-            System.out.println("\nOUTPUT_FILE:TAG --");
+            System.out.print("\nOUTPUT_FILE:TAG --\n");
             while (out.compareTo(count) < 0) {
                 String document = spintax.spin(perm);
-
                 String tag = permToTag(perm);
                 String fileName = String.format("%0" + psize + "d", out) + suffix;
 
@@ -414,8 +478,9 @@ public class SolidSpintaxSpinner {
                     fw.write(document);
                     fw.close();
                 } catch (IOException e) {
-                    System.out.println("\nERROR: Unable to write output file.");
-                    System.exit(1);
+                    System.out.print("\nERROR: Unable to write output file.\n");
+//                    System.exit(1);
+                    return;
                 }
 
                 output(fileName + ":" + tag);
@@ -424,7 +489,6 @@ public class SolidSpintaxSpinner {
                 if (perm.compareTo(max_perm) > 0) {
                     perm = BigInteger.ZERO;
                 }
-
                 out = out.add(BigInteger.ONE);
             }
         }
@@ -435,15 +499,16 @@ public class SolidSpintaxSpinner {
                 logf = new FileWriter(new File((String) res.get("log")));
                 logf.write(logOutput.toString());
                 logf.close();
-                System.out.println("\nSUCCESS: Wrote output to " + res.get("log") + ".");
+                System.out.print("\nSUCCESS: Wrote output to " + res.get("log") + ".\n");
             } catch (IOException e) {
-                System.out.println("\nERROR: Failed to create log file.");
-                System.exit(1);
+                System.out.print("\nERROR: Failed to create log file.\n");
+//                System.exit(1);
+                return;
             }
         }
     }
     
-    private static SolidSpintaxElement innerParse(String input) {
+    private static SolidSpintaxElement innerParse(String input) throws Exception {
         if (input.matches("[0-9]+-[0-9]+")) {
             SolidSpintaxBlock text = new SolidSpintaxBlock();
             int pos = input.indexOf("-");
@@ -457,7 +522,7 @@ public class SolidSpintaxSpinner {
         }
     }
 
-    public static SolidSpintaxElement parse(String input) {
+    public static SolidSpintaxElement parse(String input) throws Exception {
         SolidSpintaxBlock text = new SolidSpintaxBlock();
         SolidSpintaxSwitch currSwitch;
         currSwitch = new SolidSpintaxSwitch();
@@ -470,9 +535,20 @@ public class SolidSpintaxSpinner {
                 currSwitch = new SolidSpintaxGlobalSwitch();
                 continue;
             }
+            if (curr == '!') {
+                currSwitch = new SolidSpintaxShuffleSwitch();
+                continue;
+            }
             switch (curr) {
+                case '\\':
+                    substring += input.charAt(i+1);
+                    i++;
+                    continue;
                 case '{':
                     openBracesCount += 1;
+                    if(i==input.length()-1 && openBracesCount != 0){
+                        throw new InvalidBracesSpintaxException();
+                    }
                     if (openBracesCount == 1) {
                         firstOption = true;
                         SolidSpintaxText temp = new SolidSpintaxText(substring);
@@ -482,6 +558,9 @@ public class SolidSpintaxSpinner {
                     }
                     break;
                 case '|':
+//                    if (openBracesCount == 0){
+//                        
+//                    }
                     if (openBracesCount == 1) {
                         firstOption = false;
                         SolidSpintaxElement option = parse(substring);
@@ -511,7 +590,6 @@ public class SolidSpintaxSpinner {
                                 SolidSpintaxGlobalSwitch.switches.put(contents, globalSwitch);
                             }
                         }
-
                         currSwitch = new SolidSpintaxSwitch();
                         substring = "";
                         continue;
@@ -521,20 +599,23 @@ public class SolidSpintaxSpinner {
                     break;
             }
             substring += input.charAt(i);
+//            System.out.print(substring);
+            if(i==input.length()-1 && openBracesCount != 0){
+                throw new InvalidBracesSpintaxException();
+            }
         }
-
         SolidSpintaxText temp = new SolidSpintaxText(substring);
         text.addSwitch(temp);
         return text;
     }
 
-    private static String readFileAsString(String fileName) throws Exception {
+    public static String readFileAsString(String fileName) throws Exception {
         String data = new String(Files.readAllBytes(Paths.get(fileName)));
         return data;
     }
 
     private static void output(String in) {
-        System.out.println(in);
+        System.out.print(in+"\n");
         if (log) {
             logOutput.append(in).append("\n");
         }
@@ -556,7 +637,7 @@ public class SolidSpintaxSpinner {
                 + "Solid Spinner v" + SPINNER_VERSION + " (Solid Spintax Standard v" + SPINTAX_VERSION + ")\n");
     }
 
-    private static void handleIncompatibles(Namespace res, String[] incompatible, String with) {
+    private static void handleIncompatibles(Namespace res, String[] incompatible, String with) throws Exception{
         boolean error = false;
         for (String i : incompatible) {
             if (res.get(i) == null) {
@@ -566,10 +647,7 @@ public class SolidSpintaxSpinner {
                 continue;
             }
             error = true;
-            System.out.println("\nERROR: --" + i + " cannot be used with --" + with + ".\n");
-        }
-        if (error) {
-            System.exit(1);
+            throw new IncompatibleArgsException(i, with);
         }
     }
 

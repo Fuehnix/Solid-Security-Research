@@ -33,9 +33,9 @@ public class SolidSpintaxGlobalSwitch extends SolidSpintaxSwitch implements Soli
     }
 
     @Override
-    public String spin(BigInteger tag) {
+    public String spin(BigInteger permutation) {
         if (master == null) {
-            this.result = super.spin(tag);
+            this.result = super.spin(permutation);
             return result;
         } else {
             return master.result;

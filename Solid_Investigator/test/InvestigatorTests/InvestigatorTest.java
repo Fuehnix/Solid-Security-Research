@@ -27,22 +27,8 @@ import solid.spintax.spinner.*;
 public class InvestigatorTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
-    public InvestigatorTest() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
     
     @Before
-    public void setUp() {
-    }
-    
-       @Before
     public void setUpStreams() {
         System.setOut(new PrintStream(outContent));
     }
@@ -53,10 +39,7 @@ public class InvestigatorTest {
         System.out.println(outContent.toString());
     }
     
-    @After
-    public void tearDown() {
-    }
-    
+    //1
     @Test
     public void AbsoltePassTest() {
         assert(true);
@@ -73,6 +56,7 @@ public class InvestigatorTest {
         assert("Not Null" != null);
     }
     
+    //2
     @Test
     public void BasicNoFailTest(){
         String[] args = new String[]{"-h"};
@@ -84,7 +68,8 @@ public class InvestigatorTest {
             assert(false);
         }
     }
-     
+    
+     //3
     @Test
     public void CorrectVersionTest(){
         String[] args = new String[]{""};
@@ -97,6 +82,7 @@ public class InvestigatorTest {
         }
     }
     
+    //4
     @Test
     public void HelpIgnoresAllTest(){
         String[] args = new String[]{"-h","Does Not Matter"};
@@ -109,6 +95,7 @@ public class InvestigatorTest {
         }
     }
     
+    //5
     @Test
     public void VersionIgnoresAllTest(){
         String[] args = new String[]{""};
@@ -121,6 +108,7 @@ public class InvestigatorTest {
         }
     }
     
+    //6
     @Test
     public void NoArgsTest(){
         String[] args = new String[]{};
@@ -135,6 +123,7 @@ public class InvestigatorTest {
         }
     }
     
+    //7
     @Test
     public void LeakMissingTest(){
         String[] args = new String[]{"spintaxfilename"};
@@ -147,6 +136,7 @@ public class InvestigatorTest {
         }
     }
     
+    //8
     @Test
     public void TagDatabaseMissingTest(){
         String[] args = new String[]{"spintaxfilenamethatdoesntexist", "leakedfilenamethatdoesntexist"};
@@ -159,6 +149,7 @@ public class InvestigatorTest {
         }
     }
     
+    //9
     @Test
     public void FileNotFoundTest(){
         String[] args = new String[]{"Does","Not","Exist"};
@@ -175,6 +166,7 @@ public class InvestigatorTest {
         }
     }
     
+    //10
     @Test
     public void NoCrashValidFilesTest(){
         String[] args = new String[]{"test/Resources/basic-spintax.txt","test/Resources/basic-leaked.txt","test/Resources/basic-tagdatabase.txt"};
@@ -187,6 +179,7 @@ public class InvestigatorTest {
         }
     }
     
+    //11
     @Test
     public void SwitchCountTest(){
         String[] args = new String[]{""};
@@ -199,7 +192,7 @@ public class InvestigatorTest {
         }
     }
     
-    
+    //12
     /**
      * Additional Testing Suites
      * 

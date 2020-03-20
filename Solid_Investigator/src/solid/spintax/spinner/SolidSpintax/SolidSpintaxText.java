@@ -20,8 +20,8 @@ public class SolidSpintaxText implements SolidSpintaxElement {
     }
 
     @Override
-    public String spin(BigInteger tag) {
-        if (!tag.equals(BigInteger.ZERO)) {
+    public String spin(BigInteger permutation) {
+        if (!permutation.equals(BigInteger.ZERO)) {
             System.out.print("ERROR: Unable to generate spintax.");
             System.exit(1);
         }
@@ -33,7 +33,7 @@ public class SolidSpintaxText implements SolidSpintaxElement {
         String out = "";
         for (int i = 0; i < body.length(); i++) {
             char curr = body.charAt(i);
-            if (curr == '@' || curr == '|' || curr == '{' || curr == '}' || curr == '\\') {
+            if (curr == '@' || curr == '|' || curr == '{' || curr == '}' || curr == '\\' || curr == '!') {
                 out += '\\';
             }
             out += curr;
