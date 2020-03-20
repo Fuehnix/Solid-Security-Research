@@ -1,0 +1,1 @@
+The project name is project {spaghetti|linguini|potato|cheese}. We need to make {two|three|four} stops on the way to the store.
