@@ -79,14 +79,16 @@ public class SolidModel {
     }
     
     public static double calculateMeanOther(double total, double size, double entryDist){
-        System.out.println(total);
+        System.out.println("mean normal:" + total/size);
+        System.out.println("total before: " + total);
+        System.out.println("- dist: " + entryDist);
         total = total - entryDist;
-        System.out.println(total);
-        System.out.println(entryDist);
-        System.out.println(size);
+        System.out.println("total after: " + total);
+        System.out.println("size before: " + size);
         size = size - 1;
-        System.out.println(size);
+        System.out.println("size after: " + size);
         double mean = total/size;
+        System.out.println("mean now:" + total/size);
         return mean;
     }
     
@@ -132,5 +134,16 @@ public class SolidModel {
             pMap.put(name, pvalue);
         }
         return pMap.toString();
+    }
+    
+    public String toString(){
+        String out = "Solid Model records: \n";
+        for(int i = 0; i< records.size();i++){
+            out += "Record: " + i + "\n";
+            out += "========================================\n";
+            out += records.get(i).toString();
+            out += "========================================\n";
+        }
+        return out;
     }
 }

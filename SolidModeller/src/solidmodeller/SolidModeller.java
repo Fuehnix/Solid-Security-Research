@@ -130,11 +130,13 @@ public class SolidModeller {
         }
         SolidModelRecord testRecord = new SolidModelRecord(outputModelString);
         System.out.println(testRecord.toString());
+        System.out.println(testRecord.getDistanceTotal()/testRecord.getMap().size());
         SolidModel testModel = new SolidModel(testRecord);
         SolidModel testModel2 = new SolidModel(testRecord);
         testModel2.add(testModel);
-        try {;
-            System.out.println(testModel2.printStatistics());
+        System.out.println(testModel);
+        try {
+            System.out.println(testModel.printStatistics());
         } catch (MathException ex) {
             return;
         }
