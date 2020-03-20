@@ -127,19 +127,19 @@ public class SolidModel {
         for (Map.Entry<String,Double> entry : tMap.entrySet()){
             System.out.println(entry.toString());
             String name = entry.getKey();
-            double dist = entry.getValue();
-            double mean = 0;
-            double std = 1;
-            double pvalue = 0;
-            mean = calculateMeanOther(totalDistance,entries,dist);
-            System.out.println(totalDistance);
-            ArrayList<Double> excluding = values;
-            excluding.remove(dist);
-            std = calculateSTD(excluding,mean);
-            pvalue = calculatePValue(mean,std,dist);
-            String pvalueS = String.valueOf(pvalue);
-            System.out.println(dist + "    " +mean+ "    " + std +"   " + pvalueS);
-            pMap.put(name, pvalue);
+//            double dist = entry.getValue();
+//            double mean = 0;
+//            double std = 1;
+//            double pvalue = 0;
+//            mean = calculateMeanOther(totalDistance,entries,dist);
+//            System.out.println(totalDistance);
+//            ArrayList<Double> excluding = values;
+//            excluding.remove(dist);
+//            std = calculateSTD(excluding,mean);
+//            pvalue = calculatePValue(mean,std,dist);
+//            String pvalueS = String.valueOf(pvalue);
+//            System.out.println(dist + "    " +mean+ "    " + std +"   " + pvalueS);
+//            pMap.put(name, pvalue);
         }
         return pMap.toString();
     }

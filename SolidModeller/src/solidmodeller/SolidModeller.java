@@ -13,6 +13,10 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentGroup;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
 import org.apache.commons.math.MathException;
 
 // * <i> Solid Modeller</i>
@@ -43,6 +47,40 @@ public class SolidModeller {
     public static void main(String[] args){
         printHeader();
         //handles args last
+        
+        ArgumentParser parser = ArgumentParsers.newFor("modeller")
+                .addHelp(false)
+                .defaultFormatWidth(80)
+                .build()
+                .description("Command-line utility to match tag and leaked document to eachother.");
+        parser.addArgument("leakedfile")
+                .metavar("<FILE>")
+                .nargs("?")
+                .help("the text file of the leaked document");
+        parser.addArgument("outputmodel")
+                .metavar("<FILE>")
+                .nargs("?")
+                .help("the file created by the investigator with similarity distances against the leaked document");
+
+        ArgumentGroup information = parser.addArgumentGroup("information")
+                .description("information about this program");
+        information.addArgument("-h", "--help")
+                .action(Arguments.storeTrue())
+                .help("shows this help message");
+        information.addArgument("-v", "--version")
+                .action(Arguments.storeTrue())
+                .help("show version information");
+        ArgumentGroup input = parser.addArgumentGroup("input")
+                .description("specify where output files should be stored");
+        input.addArgument("-i", "--input")
+                .metavar("<input_model>")
+                .help("input model to update ");
+        ArgumentGroup values = parser.addArgumentGroup("values")
+                .description("specify the value to affect calculations");
+        values.addArgument("-t", "--threshold ")
+                .metavar("<double>")
+                .help("p-val for statistical significance");
+
         String leakDataFileName = "basic-leaked.txt";
         String outputModelFileName = "testModel.out";
         String leakString = "";
@@ -66,11 +104,12 @@ public class SolidModeller {
         SolidModel testModel = new SolidModel(testRecord);
         SolidModel testModel2 = new SolidModel(testRecord);
         testModel2.add(testModel);
-        try {
+        try {;
             System.out.println(testModel.printStatistics());
         } catch (MathException ex) {
-            
+            return;
         }
+        
     }
     
     /**
