@@ -6,6 +6,7 @@
 package solidmodeller;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.commons.math.MathException;
@@ -33,48 +34,43 @@ public class SolidModel {
         records = new ArrayList<>();
         tMap = record.getMap();
         records.add(record);
+        totalDistance += record.getDistanceTotal();
     }
     public SolidModel(ArrayList<SolidModelRecord> records){
         this.records = records;
         for(int i = 0; i < records.size(); i++){
             add(records.get(i));
         }
+        
     }
-    
     
     /*
         This method assumes and requires that the name entries are unique
     */
     public void add(SolidModelRecord record){
         totalDistance += record.getDistanceTotal();
-        for (Map.Entry<String,Double> entry : tMap.entrySet()){
-            String name = entry.getKey();
-            double distance = entry.getValue();
-            
-        }
+        Map<String, Double> otherMap = record.getMap();
+        otherMap.forEach((k, v) -> tMap.merge(k, v, (a, b) -> a + b));
     }
     
     /*
         This method assumes and requires that the name entries are unique
     */
     public void add(SolidModel records){
+        Map<String, Double> otherMap = records.getMap();
         totalDistance += records.getTotalDistance();
-        TreeMap<String,Double> otherMap = records.getMap();
         entries += otherMap.size();
-        for (Map.Entry<String,Double> entry : tMap.entrySet()){
-            String name = entry.getKey();
-            double dist = entry.getValue();
-            if(otherMap.containsKey(name)){
-                double otherDist = otherMap.get(name);
-                double newDist = dist + otherDist;
-                tMap.put(name,newDist);
-            }
-        }
+        otherMap.forEach((k, v) -> tMap.merge(k, v, (a, b) -> a + b));
+//        System.out.println(tMap);
+//        for (Map.Entry<String,Double> entry : tMap.entrySet()){
+//            System.out.println(entry.toString());
+//        }
     }
     
     public static double calculatePValue(double mean, double variance) throws MathException{
         double pValue = 0;
         NormalDistribution d;
+        System.out.println(mean + " and var "   + variance);
         d = new NormalDistributionImpl(mean, variance);
         System.out.println(d.inverseCumulativeProbability(0.9));
         return pValue;
@@ -109,13 +105,14 @@ public class SolidModel {
         for(int i = 0; i < dataArr.length; i++){
              dataArr[i] = data.get(i);
         }
-        return calculateSTD(data);
+        return calculateSTD(dataArr);
     }
     
     public static double calculateSTD(double[] data){
         double std = 0;
         StandardDeviation sd2 = new StandardDeviation();
-        std = sd2.evaluate(data);      
+        std = sd2.evaluate(data);
+        System.out.println("STD IS: " + std + "data is" + data.toString());
         return std;
     }
     
@@ -125,5 +122,29 @@ public class SolidModel {
     
     public TreeMap<String,Double> getMap(){
         return tMap;
+    }
+    
+    public String printStatistics() throws MathException{
+        String out = "";
+        ArrayList<Double> values = new ArrayList<>();
+        values.addAll(tMap.values());
+        TreeMap<String,Double> pMap = new TreeMap<>();
+        for (Map.Entry<String,Double> entry : tMap.entrySet()){
+            System.out.println(entry.toString());
+            String name = entry.getKey();
+            double dist = entry.getValue();
+            double mean = 0;
+            double std = 1;
+            double pvalue = 0;
+            mean = calculateMeanOther(totalDistance,entries,dist);
+            ArrayList<Double> excluding = values;
+            excluding.remove(dist);
+            std = calculateSTD(excluding);
+            pvalue = calculatePValue(mean,std);
+            String pvalueS = Double.toString(pvalue);
+            System.out.println(dist + "    " +mean+ "    " + std +"   " + pvalue);
+            pMap.put(name, pvalue);
+        }
+        return pMap.toString();
     }
 }

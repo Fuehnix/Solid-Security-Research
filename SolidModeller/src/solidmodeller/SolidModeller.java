@@ -9,6 +9,8 @@ package solidmodeller;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math.MathException;
@@ -42,14 +44,8 @@ public class SolidModeller {
         printHeader();
         //handles args last
         SolidModeller model = new SolidModeller("basic-leaked.txt","testModel.out");
-        try {
-            System.out.println(SolidModel.calculatePValue(1000, 100));
-        } catch (MathException ex) {
-            Logger.getLogger(SolidModeller.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public SolidModeller(String leakDataFileName, String outputModelFileName){
+        String leakDataFileName = "basic-leaked.txt";
+        String outputModelFileName = "testModel.out";
         String leakString = "";
         String outputModelString = "";
         try {
@@ -69,6 +65,17 @@ public class SolidModeller {
         SolidModelRecord testRecord = new SolidModelRecord(outputModelString);
         System.out.println(testRecord.toString());
         SolidModel testModel = new SolidModel(testRecord);
+        SolidModel testModel2 = new SolidModel(testRecord);
+        testModel2.add(testModel);
+        try {
+            System.out.println(testModel2.printStatistics());
+        } catch (MathException ex) {
+            Logger.getLogger(SolidModeller.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public SolidModeller(String leakDataFileName, String outputModelFileName){
+
     }
     
     /**
