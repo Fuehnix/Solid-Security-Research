@@ -36,12 +36,12 @@ public class SolidModel {
         records.add(record);
         totalDistance += record.getDistanceTotal();
     }
+    
     public SolidModel(ArrayList<SolidModelRecord> records){
         this.records = records;
         for(int i = 0; i < records.size(); i++){
             add(records.get(i));
         }
-        
     }
     
     /*
@@ -67,12 +67,12 @@ public class SolidModel {
 //        }
     }
     
-    public static double calculatePValue(double mean, double variance) throws MathException{
+    public static double calculatePValue(double mean, double variance, double value) throws MathException{
         double pValue = 0;
         NormalDistribution d;
         System.out.println(mean + " and var "   + variance);
         d = new NormalDistributionImpl(mean, variance);
-        System.out.println(d.inverseCumulativeProbability(0.9));
+        System.out.println("P value is     " + d.inverseCumulativeProbability(value));
         return pValue;
     }
     
@@ -98,21 +98,11 @@ public class SolidModel {
         return mean;
     }
     
-    public static double calculateSTD(ArrayList<Double> data){
+    public static double calculateSTD(ArrayList<Double> data, double mean){
         double std = 0;
-        
-        double dataArr[] = new double[data.size()];
-        for(int i = 0; i < dataArr.length; i++){
-             dataArr[i] = data.get(i);
+        for(int i = 0; i< data.size(); i++){
+            std += Math.pow((data.get(i) - mean/data.size()),2);
         }
-        return calculateSTD(dataArr);
-    }
-    
-    public static double calculateSTD(double[] data){
-        double std = 0;
-        StandardDeviation sd2 = new StandardDeviation();
-        std = sd2.evaluate(data);
-        System.out.println("STD IS: " + std + "data is" + data.toString());
         return std;
     }
     
@@ -129,6 +119,7 @@ public class SolidModel {
         ArrayList<Double> values = new ArrayList<>();
         values.addAll(tMap.values());
         TreeMap<String,Double> pMap = new TreeMap<>();
+        System.out.println("size   " +tMap.size());
         for (Map.Entry<String,Double> entry : tMap.entrySet()){
             System.out.println(entry.toString());
             String name = entry.getKey();
@@ -139,8 +130,8 @@ public class SolidModel {
             mean = calculateMeanOther(totalDistance,entries,dist);
             ArrayList<Double> excluding = values;
             excluding.remove(dist);
-            std = calculateSTD(excluding);
-            pvalue = calculatePValue(mean,std);
+            std = calculateSTD(excluding,mean);
+            pvalue = calculatePValue(mean,std,dist);
             String pvalueS = Double.toString(pvalue);
             System.out.println(dist + "    " +mean+ "    " + std +"   " + pvalue);
             pMap.put(name, pvalue);
