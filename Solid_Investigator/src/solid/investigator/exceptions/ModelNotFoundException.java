@@ -6,8 +6,11 @@
 package solid.investigator.exceptions;
 
 /**
- *
- * @author jacob
+ * <i>ModelNotFoundException</i>
+ * <p>
+ * @author Solid Security
+ * @author Jacob Fuehne
+ * @since 2.1.0
  */
 public class ModelNotFoundException extends Exception{
     private String errorMessage = "";

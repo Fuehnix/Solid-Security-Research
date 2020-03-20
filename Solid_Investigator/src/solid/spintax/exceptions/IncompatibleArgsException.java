@@ -6,8 +6,11 @@
 package solid.spintax.exceptions;
 
 /**
- *
- * @author jacob
+ * <i>IncompatibleArgsException</i>
+ * <p>
+ * @author Solid Security
+ * @author Jacob Fuehne
+ * @since 2.1.0
  */
 public class IncompatibleArgsException extends Exception{
     private String errorMessage = "";

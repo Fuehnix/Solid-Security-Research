@@ -26,7 +26,8 @@ public class SolidSpintaxGlobalSwitch extends SolidSpintaxSwitch implements Soli
 
     /**
      * Specify the master switch that this switch should copy.
-     * @param master
+     * @param master The master serves as the global switch which decides
+     * value of all of the other related global switches.
      */
     public void setMaster(SolidSpintaxGlobalSwitch master) {
         this.master = master;

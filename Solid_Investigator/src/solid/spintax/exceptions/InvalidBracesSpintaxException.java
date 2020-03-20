@@ -6,8 +6,11 @@
 package solid.spintax.exceptions;
 
 /**
- *
- * @author jacob
+ * <i>InvalidBracesSpintaxException</i>
+ * <p>
+ * @author Solid Security
+ * @author Jacob Fuehne
+ * @since 2.2.0
  */
 public class InvalidBracesSpintaxException  extends Exception{
     private String errorMessage = "";

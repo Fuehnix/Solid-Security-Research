@@ -6,8 +6,11 @@
 package solid.investigator.exceptions;
 
 /**
- *
- * @author jacob
+ * <i>InvalidLengthHammingDistException</i>
+ * <p>
+ * @author Solid Security
+ * @author Jacob Fuehne
+ * @since 2.1.0
  */
 public class MissingArgumentsException extends Exception{
     private String errorMessage = "";

@@ -6,8 +6,11 @@
 package solid.spintax.exceptions;
 
 /**
- *
- * @author jacob
+ * <i>InvalidCharacterSpintaxException</i>
+ * <p>
+ * @author Solid Security
+ * @author Jacob Fuehne
+ * @since 2.1.0
  */
 public class InvalidCharacterSpintaxException {
     private String errorMessage = "";

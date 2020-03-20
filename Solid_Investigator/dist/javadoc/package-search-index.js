@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"solid_investigator"},{"l":"solid.investigator.exceptions"},{"l":"solid.spintax.exceptions"},{"l":"solid.spintax.spinner"},{"l":"solid.spintax.spinner.SolidSpintax"}]

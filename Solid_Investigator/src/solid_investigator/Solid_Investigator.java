@@ -70,6 +70,8 @@ public class Solid_Investigator {
     /**
      * Main method, runs upon program execution.
      * @param args the command line arguments
+     * @throws java.lang.Exception throws various exceptions, seen in the class.  
+     * These exceptions print error messages, then end the program.
      */
     public static void main(String[] args) throws Exception{
         printHeader();
@@ -283,9 +285,8 @@ public class Solid_Investigator {
      *              determines the cost for each individual distance factor. By default these
      *              are set to 1 and LevenshteinDetailedDistance will behave as a Levenshtein
      *              distance.
-     * @return The name of the primary suspect of the leaks, if two are equal, 
-     * then the latter is chosen. If the log option exists, all outputs are stored
-     * in the log file.
+     * @throws java.lang.Exception throws various exceptions, seen in the javadocs.  
+     * These exceptions print error messages, then end the program.
      */
     public static void calculateDistances(String leak, String spintax, 
         Map<String, String> tagDatabase, boolean showLogs, String[] args) throws Exception{
