@@ -68,25 +68,15 @@ public class SolidModel {
     
     public static double calculatePValue(double mean, double std, double value) throws MathException{
         double variance = Math.pow(std,2);
-        double pValue = (1/(Math.pow((2*Math.PI),1/2)*std))*Math.exp((Math.pow(value-mean,2))/(2*variance));
+        if (std < 0){
+            System.out.println("Error: standard deviation  " + std + "  is less than 0");
+            System.out.println("The mean is:" + mean + " and the value is: " + value);
+            throw new MathException();
+        }
+        double pValue = (1/(Math.pow((2*Math.PI),1/2)*std))*Math.exp(-(Math.pow(value-mean,2))/(2*variance));
         System.out.println(pValue);
         return pValue;
     }
-    
-//    public static double calculateMean(ArrayList<Double> data){
-//        double total = 0;
-//        for(int i = 0; i < data.size(); i++){
-//            total += data.get(i);
-//        }
-//        double size = data.size();
-//        double mean = total/size;
-//        return mean;
-//    }
-//    
-//    public static double calculateMean(double total, double size){
-//        double mean = total/size;
-//        return mean;
-//    }
     
     public static double calculateMeanOther(double total, double size, double entryDist){
         System.out.println(total);
@@ -103,8 +93,10 @@ public class SolidModel {
     public static double calculateSTD(ArrayList<Double> data, double mean){
         double std = 0;
         for(int i = 0; i< data.size(); i++){
-            std += Math.pow((data.get(i) - mean/data.size()),2);
+            std += (data.get(i) - mean)/data.size();
         }
+        Math.pow(std, 2);
+        System.out.println("data in std" + data.toString() + "     " + mean);
         return std;
     }
     
@@ -123,7 +115,7 @@ public class SolidModel {
         TreeMap<String,Double> pMap = new TreeMap<>();
         System.out.println("size   " +tMap.size());
         for (Map.Entry<String,Double> entry : tMap.entrySet()){
-            System.out.println(entry.toString());
+            System.out.println("entry: " + entry.toString());
             String name = entry.getKey();
             double dist = entry.getValue();
             double mean = 0;
@@ -131,7 +123,7 @@ public class SolidModel {
             double pvalue = 0;
             mean = calculateMeanOther(totalDistance,entries,dist);
             System.out.println(totalDistance);
-            ArrayList<Double> excluding = values;
+            ArrayList<Double> excluding = (ArrayList<Double>)values.clone();
             excluding.remove(dist);
             std = calculateSTD(excluding,mean);
             pvalue = calculatePValue(mean,std,dist);
