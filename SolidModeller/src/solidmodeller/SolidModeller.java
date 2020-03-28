@@ -21,18 +21,19 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.apache.commons.math.MathException;
 
-// * <i> Solid Modeller</i>
-// * <p>
-// * Command-line utility designed to determine the most likely source of a leak
-// * <p>
-// * For command-line arguments, run with --help.
-// * <p>
-// * @author Solid Security
-// * @author Jacob Fuehne
-// * @author Vivek Nair
-// * @version 1.0.0
-// * @since 1.0.0
-// */
+/**
+ * <i> Solid Modeller</i>
+ * <p>
+ * Command-line utility designed to determine the most likely source of a leak
+ * <p>
+ * For command-line arguments, run with --help.
+ * <p>
+ * @author Solid Security
+ * @author Jacob Fuehne
+ * @author Vivek Nair
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 public class SolidModeller {
     private static final String MODELLER_VERSION = "1.0.0";
     public static final String SPINTAX_VERSION = "1.0.0";
