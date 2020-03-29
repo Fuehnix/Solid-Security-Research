@@ -1,1 +1,1 @@
-{$&|Excited.|Cheerful.}
+{$1|Excited.|Cheerful.}

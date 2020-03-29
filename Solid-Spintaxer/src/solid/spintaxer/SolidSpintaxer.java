@@ -120,6 +120,13 @@ public class SolidSpintaxer {
         ArrayList<String> inputRules = new ArrayList<>();
         ArrayList<String> outputRules = new ArrayList<>();
         ArrayList<SolidSpintaxerRule> ruleset = new ArrayList<>();
+        String inputString = "";
+        try {
+            inputString = readFileAsString(inputFile);
+        } catch(Exception ex){
+            System.out.println("readInputString");
+            System.out.println(ex);
+        }
         try {
             inputRules = readFilesInFolder(inputRuleDirectory);
         } catch (Exception ex) {
@@ -141,6 +148,19 @@ public class SolidSpintaxer {
             System.out.println(ex);
             return;
         }
+        try {
+            for(int i = 0; i < ruleset.size();i++){
+//                System.out.println(ruleset.get(i).toString());
+                inputString = ruleset.get(i).applyOutputRule(inputString);
+//                System.out.println("new input string is: "+ inputString);
+            }
+        } catch (Exception ex){
+            System.out.println("applyingRuleset");
+            System.out.println(ex);
+        }
+        System.out.println("Finished applying ruleset");
+        System.out.println(inputString);
+        
     }
     
     private static ArrayList<String> readFilesInFolder(String folderPath) throws Exception{

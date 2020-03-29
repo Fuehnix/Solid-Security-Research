@@ -22,7 +22,7 @@ public class SolidSpintaxerRule {
     public SolidSpintaxerRule(String input, String output) throws Exception{
         inputRule = input;
         outputRule = output;
-        inputPattern = getPatternFromRegexString(inputRule);
+        inputPattern = getPatternFromRegexString(input);
     }
     
     public String getInputRule() {
@@ -51,26 +51,44 @@ public class SolidSpintaxerRule {
     }
     
     public static String applyOutputRule(String input, Pattern pattern, String outputRule){
+        String out = "";
+//        System.out.println("Output rule: " + outputRule);
         Matcher matcher = pattern.matcher(input);
-        System.out.println(matcher.toString());
-        matcher.replaceAll(outputRule);
-        System.out.println(matcher.toString());
-        return matcher.toString();
+//        System.out.println(matcher.toString());
+        out = matcher.replaceAll(outputRule);
+//        System.out.println("Out is " + out);
+        return out;
     }
     
     public String applyOutputRule(String input, String outputRule){
+        String out = "";
+//        System.out.println("Output rule: " + outputRule);
         Matcher matcher = inputPattern.matcher(input);
-        System.out.println(matcher.toString());
-        matcher.replaceAll(outputRule);
-        System.out.println(matcher.toString());
-        return matcher.toString();
+//        System.out.println(matcher.toString());
+        out = matcher.replaceAll(outputRule);
+//        System.out.println("Out is " + out);
+        return out;
     }
     
     public String applyOutputRule(String input){
+        String out = "";
+//        System.out.println("Output rule: " + outputRule);
         Matcher matcher = inputPattern.matcher(input);
-        System.out.println(matcher.toString());
-        matcher.replaceAll(outputRule);
-        System.out.println(matcher.toString());
-        return matcher.toString();
+//        System.out.println(matcher.toString());
+        out = matcher.replaceAll(outputRule);
+//        System.out.println("Out is " + out);
+//        System.out.println(matcher.replace("(Happy)\\.", "\\{$&\\|Excited\\.\\|Cheerful\\.\\}"));
+        return out;
+    }
+    
+    public String toString(){
+        String out = "";
+        out += "Replace: \n";
+        out += inputRule + "\n";
+        out += "with: \n";
+        out += outputRule + "\n";
+        out += "Input pattern is: \n";
+        out += inputPattern;
+        return out;
     }
 }
