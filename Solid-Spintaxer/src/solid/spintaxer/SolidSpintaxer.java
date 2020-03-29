@@ -6,8 +6,11 @@
 package solid.spintaxer;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -16,8 +19,6 @@ import net.sourceforge.argparse4j.inf.ArgumentGroup;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
-
-
 
 /**
  * <i> Solid Spintaxer</i>
@@ -56,7 +57,7 @@ public class SolidSpintaxer {
                 .metavar("<FOLDER>")
                 .nargs("?")
                 .help("the folder of input regex rules");
-        parser.addArgument("outputdirectory")
+        parser.addArgument("outputfolderdirectory")
                 .metavar("<FOLDER>")
                 .nargs("?")
                 .help("the folder of output regex rules");
@@ -97,26 +98,91 @@ public class SolidSpintaxer {
                 System.out.println("Solid Spintax Modeller Version: " + SPINTAXER_VERSION);
             }
         }
+        
+        if (res.get("inputfile") == null) {
+            System.out.println("\nERROR: Please specify an input file.");
+            return;
+        }
+        
+        if (res.get("inputfolderdirectory") == null) {
+            System.out.println("\nERROR: Please specify a folder of input rule files.");
+            return;
+        }
+        
+        if (res.get("outputfolderdirectory") == null) {
+            System.out.println("\nERROR: Please specify a folder of output rule files");
+            return;
+        }
+        
         String inputFile = res.get("inputfile");
         String inputRuleDirectory = res.get("inputfolderdirectory");
         String outputRuleDirectory = res.get("outputfolderdirectory");
+        ArrayList<String> inputRules = new ArrayList<>();
+        ArrayList<String> outputRules = new ArrayList<>();
+        ArrayList<SolidSpintaxerRule> ruleset = new ArrayList<>();
         try {
-            System.out.println(readFilesInFolder(inputRuleDirectory));
+            inputRules = readFilesInFolder(inputRuleDirectory);
         } catch (Exception ex) {
+            System.out.println("readInputDirectory");
             System.out.println(ex);
+            return;
+        }
+        try {
+            outputRules = readFilesInFolder(outputRuleDirectory);
+        } catch (Exception ex) {
+            System.out.println("readOutputDirectory");
+            System.out.println(ex);
+            return;
+        }
+        try {
+            ruleset = createRulesFromFiles(inputRules,outputRules);
+        } catch (Exception ex) {
+            System.out.println("createRulesFromFiles");
+            System.out.println(ex);
+            return;
         }
     }
     
-    private static String readFilesInFolder(String folderPath) throws Exception{
+    private static ArrayList<String> readFilesInFolder(String folderPath) throws Exception{
+//        System.out.println("readFilesInFolder");
+//        System.out.println(folderPath);
         File folder = new File(folderPath);
         File[] listOfFiles = folder.listFiles();
-        String fileNameList = "";
+        ArrayList<String> fileNameList = new ArrayList<>();
         for (File file : listOfFiles) {
             if (file.isFile()) {
-                fileNameList += (file.getName() + "\n");
+//                System.out.println(file.getName());
+                fileNameList.add(folderPath + "/" + file.getName());
             }
         }
         return fileNameList;
+    }
+    
+    private static ArrayList<SolidSpintaxerRule> createRulesFromFiles(ArrayList<String> inputRules, ArrayList<String> outputRules) throws Exception{
+//        System.out.println("createRulesFromFiles");
+        ArrayList<SolidSpintaxerRule> ruleset = new ArrayList<>();
+        if(inputRules.size() != outputRules.size()){
+            System.out.println("Error: there are " + inputRules.size() + 
+                    "input rules and " + outputRules.size() +
+                    "output rules. They must be equal.");
+            throw new Exception(); //THIS IS A PLACEHOLDER, REPLACE WITH SPECIFIC ERROR IN FINAL VERSION
+        }
+        for(int i = 0; i < inputRules.size(); i++){
+            String inputRule = "";
+            String outputRule = "";
+            inputRule = readFileAsString(inputRules.get(i));
+            outputRule = readFileAsString(outputRules.get(i));
+            String inputRuleName = (inputRules.get(i).toString().split("/")[1].toString()).split("\\.")[0];
+            String outputRuleName = (outputRules.get(i).toString().split("/")[1].toString()).split("\\.")[0];
+            if(!inputRuleName.equals(outputRuleName)){
+                System.out.println("Error: input rule: "+ inputRuleName +
+                        " does not match output rule: " + outputRuleName);
+                throw new Exception(); //THIS IS A PLACEHOLDER, REPLACE WITH SPECIFIC ERROR IN FINAL VERSION
+            }
+            SolidSpintaxerRule rule = new SolidSpintaxerRule(inputRule,outputRule);
+            ruleset.add(rule);
+        }
+        return ruleset;
     }
     
     /**
@@ -126,7 +192,9 @@ public class SolidSpintaxer {
      * @throws Exception File not found and IOException.
      */
     private static String readFileAsString(String fileName) throws Exception {
+//        System.out.println("readFileAsString");
         String data = new String(Files.readAllBytes(Paths.get(fileName)));
+//        System.out.println(data);
         return data;
     }
     
