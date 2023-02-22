@@ -1,0 +1,4 @@
+# Papers and Presentations
+In addition to other comments about Future Work, I recognize that this paper is not in a standard ACL format that would be considered publishable.  To take this paper from the less defined guidelines of a white paper, and into a publication, I would need to make sure that there are references for previous work, and expand upon the latest research, rather than just use it.
+
+The lessons I learned from this project carry over into my [Ling 506 research seminar course project](https://github.com/Fuehnix/Ling506TermProject), where I completed a preprint under the guidance of Professor Roxana Girju from UIUC. That other project more closely aligns with my current research interests and I would be very interested in revising it to be publishable. You can read that paper [here](https://github.com/Fuehnix/Ling506TermProject/blob/main/Ling_506_Term_Project_Paper.pdf).
