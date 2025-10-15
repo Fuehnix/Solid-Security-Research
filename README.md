@@ -2,7 +2,7 @@
 ## About this repo
 The following is a github repository for open source research that I completed during my NLP research internship at a startup called Solid Security (a now defunct company)
 
-Within each of the folders are a readme detailing how to execute and use said code.  The code and methods should be documented well enough to understand, but for a high level overview of the project, please refer to the [paper](https://github.com/SolidSecurity/Solid-Spintax-Specification) I wrote detailing the system.
+Within each of the folders are a readme detailing how to execute and use said code.  The code and methods should be documented well enough to understand, but for a high level overview of the project, please refer to the [paper](https://github.com/Fuehnix/Solid-Security-Research/blob/master/Papers%20and%20Presentations/Systems%20Enabling%20the%20Use%20of%20Natural%20Language%20Processing%20Methods%20for%20Software-Based%20Leak%20Detection%2C%20Prevention%2C%20and%20Mitigation.pdf) and [specifications](https://github.com/SolidSecurity/Solid-Spintax-Specification) I wrote detailing the system.
 
 My role in this project was to do white paper write-ups, coding the project, expand on the concept, and researching NLP methods to make it feasible, while under minimal guidance of Solid Security.
 
