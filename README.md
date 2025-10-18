@@ -12,5 +12,3 @@ The concept behind this project, in summary is to have a leak mitigation system 
 
 ## Future work
 In this project, I was unable to complete work on the "Inspector" component before the research was shut down due to COVID conflicts. This component would have auto-generated spintax rules based on linguistic understanding about what is okay to change.  However, to achieve such a process *well* is actually part of an unsolved problem in NLP, computational pragmatics.  With the innovations of transformers and GPT, I think the same approach that is being taken towards "cheat detection" with ChatGPT could also be modified towards this system as well.
-
-However, my research interests are more related towards Cognitive NLP, computational social sciences, multimodal NLP, and novel approaches that work around the large LLM craze.  I want to work on more "organic" NLP, and NLP that seems more human.
